@@ -326,7 +326,7 @@ void test_reduce_dg_range_ho() {
 }
 
 // CUDA specific tests
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 
 void test_reduce_dg_dev() {
   test_reduce_dg(true);
@@ -341,7 +341,7 @@ void test_reduce_dg_range_dev() {
 TEST_LIST = {
   { "array_reduce_dg", test_reduce_dg_ho },
   { "array_reduce_dg_range", test_reduce_dg_range_ho },
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   { "cu_array_reduce_dg", test_reduce_dg_dev },
   { "cu_array_reduce_dg_range", test_reduce_dg_range_dev },
 #endif

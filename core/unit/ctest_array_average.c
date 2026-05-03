@@ -28,7 +28,7 @@ mkarr(long nc, long size, bool use_gpu)
 // Compare the computed result with the average computed with another updater.
 double solution_array_integrate(struct gkyl_rect_grid grid, struct gkyl_basis basis,
   struct gkyl_range local_ext, struct gkyl_range local, struct gkyl_array *win, struct gkyl_array *fin, bool use_gpu) {
-  
+
   double *avgf_ref = use_gpu? gkyl_cu_malloc(sizeof(double)) : gkyl_malloc(sizeof(double));
 
   if(win)
@@ -1091,7 +1091,7 @@ void test_3x_cpu()
   }
 }
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 void test_1x_gpu()
 {
   for (int p = 1; p<=2; p++)
@@ -1122,7 +1122,7 @@ TEST_LIST = {
   { "test_1x_cpu", test_1x_cpu },
   { "test_2x_cpu", test_2x_cpu },
   { "test_3x_cpu", test_3x_cpu },
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   { "test_1x_gpu", test_1x_gpu },
   { "test_2x_gpu", test_2x_gpu },
   { "test_3x_gpu", test_3x_gpu },

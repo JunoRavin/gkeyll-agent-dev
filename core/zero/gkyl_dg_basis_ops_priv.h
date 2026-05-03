@@ -1,6 +1,6 @@
 #include <gkyl_dg_basis_ops.h>
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 /**
  * Evaluate the an array containing a DG field
  * at a specific coordinate in the grid on the NVIDIA gpu. 

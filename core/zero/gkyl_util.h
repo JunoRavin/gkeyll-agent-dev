@@ -84,15 +84,17 @@
 # define GKYL_DEF_ALIGN 64
 #endif
 
-// CUDA specific defines etc
-#ifdef __NVCC__
+// GPU (CUDA or HIP) specific defines etc.
+//
+// Gated on GKYL_HAVE_GPU rather than the compiler-driver macro __NVCC__,
+// because hipcc does not define __NVCC__. GKYL_HAVE_GPU, GKYL_HAVE_CUDA,
+// and GKYL_HAVE_HIP are injected via CFLAGS by the top-level Makefile.
+#if defined(GKYL_HAVE_GPU)
 
-#include <cuda_runtime.h>
-
-#define GKYL_HAVE_CUDA
+#include <gkyl_gpu_runtime.h>
 
 #define GKYL_CU_DH __device__ __host__
-#define GKYL_CU_D __device__ 
+#define GKYL_CU_D __device__
 
 // for directional copies
 enum gkyl_cu_memcpy_kind {
@@ -104,12 +106,12 @@ enum gkyl_cu_memcpy_kind {
 
 #define GKYL_DEFAULT_NUM_THREADS 256
 
-// CUDA helper function to find CUDA errors
+// Helper macro/function to check GPU runtime errors.
 #define checkCuda(val)           __checkCudaErrors__ ( (val), #val, __FILE__, __LINE__ )
 inline cudaError_t __checkCudaErrors__(cudaError_t code, const char *func, const char *file, int line)
 {
   if (code) {
-    fprintf(stderr, "CUDA error: %s (code=%u)  \"%s\" at %s:%d \n",
+    fprintf(stderr, "GPU error: %s (code=%u)  \"%s\" at %s:%d \n",
       cudaGetErrorString(code), (unsigned int)code, func, file, line);
     cudaDeviceReset();
     exit(EXIT_FAILURE);
@@ -119,10 +121,9 @@ inline cudaError_t __checkCudaErrors__(cudaError_t code, const char *func, const
 
 #else
 
-#undef GKYL_HAVE_CUDA
 #define GKYL_CU_DH
 #define GKYL_CU_D
-#define checkCuda(val) 
+#define checkCuda(val)
 // for directional copies
 enum gkyl_cu_memcpy_kind {
   GKYL_CU_MEMCPY_H2H,
@@ -133,7 +134,7 @@ enum gkyl_cu_memcpy_kind {
 
 #define GKYL_DEFAULT_NUM_THREADS 1
 
-#endif // CUDA specific defines etc
+#endif // GPU specific defines etc
 
 // This funny looking macro allows getting a pointer to the 'type'
 // struct that contains an object 'member' given the 'ptr' to the

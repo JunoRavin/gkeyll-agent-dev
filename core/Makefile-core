@@ -13,6 +13,17 @@ ifdef USING_NVCC
 	SRCS += $(shell find $(SRC_DIRS) -name *.cu)
 	SRCS += $(shell find $(UNIT_DIRS) -name *.cu)
 endif
+ifdef USING_HIPCC
+	# .cu files compile under hipcc via the gkyl_gpu_runtime.h shim, plus the
+	# Phase 3 gkyl_gpu_reduce.h shim for the three reduction kernels. cusolver_ops.cu
+	# and cudss_ops.cu are CUDA-only (plan §7) — excluded here. ctest_cusolver.cu
+	# and ctest_cudss.cu likewise excluded from the unit-side find.
+	HIP_DEFER_UNIT := unit/ctest_cusolver.cu unit/ctest_cudss.cu
+	SRCS += $(filter-out zero/cusolver_ops.cu zero/cudss_ops.cu, \
+	          $(shell find $(SRC_DIRS) -name *.cu))
+	SRCS += $(filter-out $(HIP_DEFER_UNIT), \
+	          $(shell find $(UNIT_DIRS) -name *.cu))
+endif
 OBJS := $(SRCS:%=../$(BUILD_DIR)/core/%.o)
 DEPS := $(OBJS:.o=.d)
 
@@ -20,7 +31,7 @@ UNITS := $(patsubst %.c,../${BUILD_DIR}/core/%,$(wildcard unit/ctest_*.c))
 MPI_UNITS := $(patsubst %.c,../${BUILD_DIR}/core/%,$(wildcard unit/mctest_*.c))
 LUA_UNITS := $(patsubst %.c,../${BUILD_DIR}/core/%,$(wildcard unit/lctest_*.c))
 
-# We need to build CUDA unit-test objects                                                                                                                                            
+# We need to build GPU unit-test objects
 UNIT_CU_SRCS =
 UNIT_CU_OBJS =
 ifdef USING_NVCC
@@ -30,16 +41,21 @@ ifdef USING_CUDSS
 endif
     UNIT_CU_OBJS = $(UNIT_CU_SRCS:%=../$(BUILD_DIR)/core/%.o)
 endif
+ifdef USING_HIPCC
+    # ctest_cusolver / ctest_cudss are CUDA-only (plan §7) and excluded.
+    UNIT_CU_SRCS = unit/ctest_alloc_cu.cu unit/ctest_basis_cu.cu unit/ctest_array_cu.cu unit/ctest_range_cu.cu unit/ctest_rect_grid_cu.cu unit/ctest_struct_of_arrays_cu.cu
+    UNIT_CU_OBJS = $(UNIT_CU_SRCS:%=../$(BUILD_DIR)/core/%.o)
+endif
 
 REGS := $(patsubst %.c,../${BUILD_DIR}/core/%,$(wildcard creg/rt_*.c))
 
 KERN_INC_DIRS = $(shell find $(KERNELS_DIR) -type d)
 KERN_INCLUDES = $(addprefix -I,$(KERN_INC_DIRS))
-EXT_INCS := -I${MPI_INC_DIR} -I${NCCL_INC_DIR} -I${CUDSS_INC_DIR} -I${LUA_INC_DIR} -I${LAPACK_INC_DIR} -I${SUPERLU_INC_DIR}
+EXT_INCS := -I${MPI_INC_DIR} -I${NCCL_INC_DIR} -I${RCCL_INC_DIR} -I${CUDSS_INC_DIR} -I${LUA_INC_DIR} -I${LAPACK_INC_DIR} -I${SUPERLU_INC_DIR}
 INCS := ${EXT_INCS} -Iminus -Iminus/STC/include -Izero -Iapps $(KERN_INCLUDES) -Ilua/Comm -Ilua/Tool
 
-EXEC_LIB_DIRS = -L${LAPACK_LIB_DIR} -L${SUPERLU_LIB_DIR} -L${MPI_LIB_DIR} -L${NCCL_LIB_DIR} -L${CUDSS_LIB_DIR} -L${LUA_LIB_DIR}
-EXEC_EXT_LIBS = ${LAPACK_LIBS} ${SUPERLU_LIBS} ${CUDA_LIBS} ${MPI_RPATH} ${MPI_LIBS} ${NCCL_LIBS} ${CUDSS_RPATH} ${CUDSS_LIBS} ${LUA_RPATH} ${LUA_LIBS} -lm -lpthread -ldl
+EXEC_LIB_DIRS = -L${LAPACK_LIB_DIR} -L${SUPERLU_LIB_DIR} -L${MPI_LIB_DIR} -L${NCCL_LIB_DIR} -L${RCCL_LIB_DIR} -L${CUDSS_LIB_DIR} -L${LUA_LIB_DIR}
+EXEC_EXT_LIBS = ${LAPACK_LIBS} ${SUPERLU_LIBS} ${GPU_LIBS} ${MPI_RPATH} ${MPI_LIBS} ${NCCL_LIBS} ${RCCL_LIBS} ${CUDSS_RPATH} ${CUDSS_LIBS} ${LUA_RPATH} ${LUA_LIBS} -lm -lpthread -ldl
 EXEC_LIBS = -L../${BUILD_DIR}/core ${LLIB} ${SLLIB} ${EXEC_EXT_LIBS}
 
 LDFLAGS += -Wl,-rpath,./${BUILD_DIR}/core
@@ -62,10 +78,12 @@ all: $(LLIB) ## Build all targets
 	$(MKDIR_P) $(dir $@)
 	$(CC) -c $(CFLAGS) $(ARCH_FLAGS) $(INCS) $< -o $@
 
-# Build commands for CUDA source                                                                                                                                                     
+# Build commands for CUDA / HIP device source. On the CUDA path GPUCXX==CC==nvcc
+# and GPU_FLAGS==NVCC_FLAGS; on the HIP path GPUCXX==hipcc and GPU_FLAGS carries
+# the hipcc offload-arch + -fgpu-rdc options (set in the top-level Makefile).
 ../$(BUILD_DIR)/core/%.cu.o: %.cu
 	$(MKDIR_P) $(dir $@)
-	$(CC) -c $(CFLAGS) $(NVCC_FLAGS) $(INCS) $< -o $@
+	$(GPUCXX) -c $(CFLAGS) $(GPU_FLAGS) $(INCS) $< -o $@
 
 # Unit tests                                                                                                                                                                         
 $(UNITS): ../${BUILD_DIR}/core/unit/%: unit/%.c $(LLIB) $(SLLIB)
@@ -87,30 +105,34 @@ $(LUA_UNITS): ../${BUILD_DIR}/core/unit/%: unit/%.c $(LLIB) $(SLLIB)
 	$(MKDIR_P) ../${BUILD_DIR}/core/unit
 	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $< -I. $(INCS) ${EXEC_LIB_DIRS} ${EXEC_LIBS}
 
-ifdef USING_NVCC
+# Kernel-overrides: certain kernel .c files must be compiled by the GPU compiler
+# so the device side can pull them in via relocatable device code. On the NVCC
+# path GPUCXX==CC==nvcc and GPU_FLAGS==NVCC_FLAGS so this is a no-op rename. On
+# the HIP path GPUCXX==hipcc and GPU_FLAGS carries --offload-arch + -fgpu-rdc.
+ifneq (,$(USING_NVCC)$(USING_HIPCC))
 ../$(BUILD_DIR)/core/$(KERNELS_DIR)/array_average/%.c.o : $(KERNELS_DIR)/array_average/%.c
 	$(MKDIR_P) $(dir $@)
-	$(CC) $(CFLAGS) $(NVCC_FLAGS) $(INCS) -c $< -o $@
+	$(GPUCXX) $(CFLAGS) $(GPU_FLAGS) $(INCS) -c $< -o $@
 
 ../$(BUILD_DIR)/core/$(KERNELS_DIR)/bin_op/%.c.o : $(KERNELS_DIR)/bin_op/%.c
 	$(MKDIR_P) $(dir $@)
-	$(CC) $(CFLAGS) $(NVCC_FLAGS) $(INCS) -c $< -o $@
+	$(GPUCXX) $(CFLAGS) $(GPU_FLAGS) $(INCS) -c $< -o $@
 
 ../$(BUILD_DIR)/core/$(KERNELS_DIR)/array_integrate/%.c.o : $(KERNELS_DIR)/array_integrate/%.c
 	$(MKDIR_P) $(dir $@)
-	$(CC) $(CFLAGS) $(NVCC_FLAGS) $(INCS) -c $< -o $@
+	$(GPUCXX) $(CFLAGS) $(GPU_FLAGS) $(INCS) -c $< -o $@
 
 ../$(BUILD_DIR)/core/$(KERNELS_DIR)/basis/%.c.o : $(KERNELS_DIR)/basis/%.c
 	$(MKDIR_P) $(dir $@)
-	$(CC) $(CFLAGS) $(NVCC_FLAGS) $(INCS) -c $< -o $@
+	$(GPUCXX) $(CFLAGS) $(GPU_FLAGS) $(INCS) -c $< -o $@
 
 ../$(BUILD_DIR)/core/$(KERNELS_DIR)/dg_interpolate/%.c.o : $(KERNELS_DIR)/dg_interpolate/%.c
 	$(MKDIR_P) $(dir $@)
-	$(CC) $(CFLAGS) $(NVCC_FLAGS) $(INCS) -c $< -o $@
+	$(GPUCXX) $(CFLAGS) $(GPU_FLAGS) $(INCS) -c $< -o $@
 
 ../$(BUILD_DIR)/core/$(KERNELS_DIR)/skin_surf_from_ghost/%.c.o : $(KERNELS_DIR)/skin_surf_from_ghost/%.c
 	$(MKDIR_P) $(dir $@)
-	$(CC) $(CFLAGS) $(NVCC_FLAGS) $(INCS) -c $< -o $@
+	$(GPUCXX) $(CFLAGS) $(GPU_FLAGS) $(INCS) -c $< -o $@
 endif
 
 # include link object list
@@ -123,8 +145,13 @@ $(LLIB): $(OBJS)
 ifeq ($(UNAME),Linux)
 ifdef USING_NVCC
 	$(CC) -shared -o $@ ${CORE_LINK_OBJS} ${CORE_LINK_CU_OBJS}  -Xlinker=-soname -Xlinker=libg0core.so -L${LAPACK_LIB_DIR} -L${SUPERLU_LIB_DIR} -L${MPI_LIB_DIR} -L${NCCL_LIB_DIR} -L${CUDSS_LIB_DIR} -L${LUA_LIB_DIR} ${SUPERLU_LIBS} ${LAPACK_LIBS} ${CUDA_LIBS} ${MPI_RPATH} ${MPI_LIBS} ${NCCL_LIBS} ${CUDSS_RPATH} ${CUDSS_LIBS} ${LUA_RPATH} ${LUA_LIBS} -lm -lpthread -ldl -arch=sm_${CUDA_ARCH} -rdc=true --compiler-options="-fPIC"
+else ifdef USING_HIPCC
+	# hipcc drives the link so -fgpu-rdc relocatable device code resolves. Both
+	# CORE_LINK_OBJS (host .c.o + zero/_cu.cu.o + ker/*/*.c.o compiled by hipcc)
+	# and CORE_LINK_CU_OBJS (unit/*.cu.o) feed in here.
+	$(GPUCXX) -shared $(GPU_LDFLAGS) -fPIC -o $@ ${CORE_LINK_OBJS} ${CORE_LINK_CU_OBJS} -Wl,-soname,libg0core.so -L${LAPACK_LIB_DIR} -L${SUPERLU_LIB_DIR} -L${MPI_LIB_DIR} -L${NCCL_LIB_DIR} -L${RCCL_LIB_DIR} -L${LUA_LIB_DIR} ${SUPERLU_LIBS} ${LAPACK_LIBS} ${MPI_RPATH} ${GPU_LIBS} ${MPI_LIBS} ${NCCL_LIBS} ${RCCL_LIBS} ${LUA_RPATH} ${LUA_LIBS} -lm -lpthread -ldl
 else
-	$(CC) -shared -o $@ ${CORE_LINK_OBJS} -Wl,-soname,libg0core.so -L${LAPACK_LIB_DIR} -L${SUPERLU_LIB_DIR} -L${MPI_LIB_DIR} -L${NCCL_LIB_DIR} -L${CUDSS_LIB_DIR} -L${LUA_LIB_DIR} ${SUPERLU_LIBS} ${LAPACK_LIBS} ${MPI_RPATH} ${CUDA_LIBS} ${MPI_LIBS} ${NCCL_LIBS} ${CUDSS_RPATH} ${CUDSS_LIBS} ${LUA_RPATH} ${LUA_LIBS} -lm -lpthread -ldl
+	$(CC) -shared -o $@ ${CORE_LINK_OBJS} -Wl,-soname,libg0core.so -L${LAPACK_LIB_DIR} -L${SUPERLU_LIB_DIR} -L${MPI_LIB_DIR} -L${NCCL_LIB_DIR} -L${RCCL_LIB_DIR} -L${CUDSS_LIB_DIR} -L${LUA_LIB_DIR} ${SUPERLU_LIBS} ${LAPACK_LIBS} ${MPI_RPATH} ${GPU_LIBS} ${MPI_LIBS} ${NCCL_LIBS} ${RCCL_LIBS} ${CUDSS_RPATH} ${CUDSS_LIBS} ${LUA_RPATH} ${LUA_LIBS} -lm -lpthread -ldl
 endif
 else
 ## Darwin

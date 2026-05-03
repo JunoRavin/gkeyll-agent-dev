@@ -1,9 +1,20 @@
 #pragma once
 
-#ifdef GKYL_HAVE_NCCL
+#include <gkyl_gpu_runtime.h>
+
+// RCCL is API-compatible with NCCL: same `nccl*` symbol names, same enum
+// values, same calling conventions. The header lives at <rccl/rccl.h>
+// under ROCm. Source files that want either implementation gate on the
+// disjunction below; the include switch lives here so the rest of the
+// codebase keeps using the platform-agnostic `nccl*` API.
+#if defined(GKYL_HAVE_NCCL) || defined(GKYL_HAVE_RCCL)
 
 #include <mpi.h>
+#if defined(GKYL_HAVE_RCCL)
+#include <rccl/rccl.h>
+#else
 #include <nccl.h>
+#endif
 #include <gkyl_comm.h>
 #include <gkyl_rect_decomp.h>
 

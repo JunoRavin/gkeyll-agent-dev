@@ -82,7 +82,7 @@ gkyl_dg_array_mask_eval_idx_ker(struct gkyl_dg_array_mask *mask, const int *idx)
   return mask->eval_idx_func(mask, idx);
 }
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 
 /**
  * Create a new dg_array_mask object on CUDA device.

@@ -38,7 +38,7 @@ gkyl_cart_modal_tensor_new(int ndim, int poly_order)
   return basis;
 }
 
-#ifndef GKYL_HAVE_CUDA
+#ifndef GKYL_HAVE_GPU
 void
 gkyl_cart_modal_tensor_cu_dev(struct gkyl_basis *basis, int ndim, int poly_order)
 {

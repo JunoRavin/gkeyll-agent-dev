@@ -188,11 +188,11 @@ gkyl_mem_buff_release(gkyl_mem_buff mem)
   gkyl_free(mem);
 }
 
-// CUDA specific code
+// GPU-specific code (CUDA or HIP)
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 
-#include <cuda_runtime.h>
+#include <gkyl_gpu_runtime.h>
 
 void*
 gkyl_cu_malloc_(const char *file, int line, const char *func, size_t size)
@@ -267,7 +267,7 @@ gkyl_cu_memset(void *data, int val, size_t count)
 
 #else
 
-// These non-CUDA functions will simply abort. When not using CUDA
+// These non-GPU functions will simply abort. When not building for GPU
 // none of these methods should be called at all.
 
 void*
@@ -314,4 +314,4 @@ gkyl_cu_memset(void *data, int val, size_t count)
   assert(false);  
 }
 
-#endif // CUDA specific code
+#endif // GPU specific code

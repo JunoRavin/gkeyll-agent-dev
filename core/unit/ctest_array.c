@@ -562,7 +562,7 @@ test_array_from_buff(void)
 }
 
 // Cuda specific tests
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 
 /* Function signatures of kernel calls */
 int cu_array_test_and_flip_sign( struct gkyl_array *arr);
@@ -675,7 +675,7 @@ TEST_LIST = {
   { "grid_array_new_from_file_1", test_grid_array_new_from_file_1 },
   { "grid_array_read_1", test_grid_array_read_p1 },
   { "array_from_buff", test_array_from_buff },  
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   { "cu_array_base", test_cu_array_base },
   { "cu_array_dev_kernel", test_cu_array_dev_kernel },
 #endif

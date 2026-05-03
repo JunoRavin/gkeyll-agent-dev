@@ -1,5 +1,6 @@
 #pragma once
 
+#include <gkyl_gpu_runtime.h>
 #include <gkyl_ref_count.h>
 #include <gkyl_util.h>
 #include <gkyl_elem_type.h>
@@ -26,7 +27,7 @@ struct gkyl_array {
 
   int nthreads, nblocks; // threads per block, number of blocks
   struct gkyl_array *on_dev; // pointer to itself or device data
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   cudaStream_t iostream;
 #else
   int iostream;

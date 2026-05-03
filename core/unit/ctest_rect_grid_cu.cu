@@ -22,7 +22,13 @@ void ker_cu_rect_grid_test(const struct gkyl_rect_grid grid, int *nfail)
     GKYL_CU_CHECK( grid.lower[i] == lower[i], nfail );
     GKYL_CU_CHECK( grid.upper[i] == upper[i], nfail );
     GKYL_CU_CHECK( grid.cells[i] == cells[i], nfail );
-    GKYL_CU_CHECK( grid.dx[i] == (upper[i]-lower[i])/cells[i], nfail );
+    // Tolerance comparison instead of bit-exact equality: under hipcc with
+    // -ffast-math the device path can lower (a-b)/c into (a-b)*v_rcp_f64(c),
+    // and v_rcp_f64 on AMDGPU is not IEEE-strict — a few ULPs off the host
+    // division. The test's intent is "kernel sees the right dx", not
+    // "host and device division agree bit-for-bit".
+    double expected_dx = (upper[i]-lower[i])/cells[i];
+    GKYL_CU_CHECK( fabs(grid.dx[i] - expected_dx) <= 1e-14, nfail );
   }
   GKYL_CU_CHECK( grid.cellVolume == 0.075*0.2, nfail );
   

@@ -1,3 +1,7 @@
+// Linear-solver TU is CUDA-only per amd_port_plan.md §7. See cusolver_ops.cu
+// for the rationale on the outer GKYL_HAVE_CUDA guard.
+#ifdef GKYL_HAVE_CUDA
+
 #ifdef GKYL_HAVE_CUDSS
 
 #include <cudss.h>
@@ -282,4 +286,7 @@ gkyl_culinsolver_prob_release(struct gkyl_culinsolver_prob *prob)
 }
 
 // End ifdef GKYL_HAVE_CUDSS statement.
+#endif
+
+// End ifdef GKYL_HAVE_CUDA statement.
 #endif

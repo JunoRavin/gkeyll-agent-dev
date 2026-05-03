@@ -7,7 +7,7 @@ struct gkyl_array_integrate*
 gkyl_array_integrate_new(const struct gkyl_rect_grid *grid, const struct gkyl_basis *basis,
   int num_comp, enum gkyl_array_integrate_op op, bool use_gpu)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (use_gpu)
     return gkyl_array_integrate_cu_dev_new(grid, basis, num_comp, op);
 #endif
@@ -38,7 +38,7 @@ void gkyl_array_integrate_advance(gkyl_array_integrate *up, const struct gkyl_ar
   double factor, const struct gkyl_array *weight, const struct gkyl_range *range,
   const struct gkyl_range *weight_range, double *out)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (up->use_gpu) {
     gkyl_array_integrate_advance_cu(up, fin, factor, weight, range, weight_range, out);
     return;
@@ -73,7 +73,7 @@ void gkyl_array_integrate_advance(gkyl_array_integrate *up, const struct gkyl_ar
 void gkyl_array_integrate_release(gkyl_array_integrate *up)
 {
   // Release memory associated with this updater.
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (up->use_gpu)
     gkyl_cu_free(up->on_dev);
 #endif

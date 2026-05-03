@@ -2,7 +2,7 @@
 
 #include <gkyl_array_dg_reduce.h>
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 
 /**
  * Max reduce a gkyl_array evaluating the DG field in each cell at Gauss-Legendre nodes

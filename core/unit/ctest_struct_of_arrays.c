@@ -231,7 +231,7 @@ void test_array_bag_accumulate_ho()
   gkyl_free(ab2);
 }
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 
 /* Function signatures of kernel calls */
 void test_array_container_accumulate_dev_assign_cu(int arr_ncomp, int arr_size, int num_containers,
@@ -514,7 +514,7 @@ TEST_LIST = {
   { "array_container_accumulate_ho", test_array_container_accumulate_ho },
   { "container_pack_accumulate_ho", test_container_pack_accumulate_ho },
   { "array_bag_accumulate_ho", test_array_bag_accumulate_ho },
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   { "array_container_accumulate_dev", test_array_container_accumulate_dev },
   { "container_pack_accumulate_dev", test_container_pack_accumulate_dev },
   { "array_bag_accumulate_dev", test_array_bag_accumulate_dev },

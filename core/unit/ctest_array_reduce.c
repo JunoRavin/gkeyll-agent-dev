@@ -103,7 +103,7 @@ void test_sum_reduce_range()
 }
 
 // CUDA specific tests
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 
 void test_cu_array_reduce_max()
 {
@@ -374,7 +374,7 @@ TEST_LIST = {
   { "array_reduce", test_reduce },
   { "array_reduce_range", test_reduce_range },
   { "array_reduce_sum_range", test_sum_reduce_range },
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   { "cu_array_reduce_max", test_cu_array_reduce_max },
   { "cu_array_reduce_max_big", test_cu_array_reduce_max_big },
   { "cu_array_reduce_range_1d_max", test_cu_array_reduce_range_1d_max },

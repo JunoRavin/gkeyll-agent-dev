@@ -71,24 +71,69 @@ endif
 SUPERLU_LIB_NAME ?= superlu
 SUPERLU_LIBS ?= -l${SUPERLU_LIB_NAME}
 
-# CUDA flags
+# CUDA / HIP flags
+#
+# USING_NVCC selects the CUDA/nvcc toolchain. USING_HIPCC selects the HIP/hipcc
+# toolchain. Exactly one (or neither, for CPU-only builds) is set. Both paths
+# populate the unified GPU_FLAGS / GPU_LDFLAGS / GPU_LIBS variables consumed
+# by the sub-makes; CUDA_LIBS / NVCC_FLAGS are kept as legacy aliases pointing
+# at the unified vars so existing references keep working.
 USING_NVCC =
+USING_HIPCC =
 NVCC_FLAGS =
+GPU_FLAGS =
+GPU_LDFLAGS =
+GPU_LIBS =
 CUDA_LIBS =
-# Default SQL flags (nvcc block below overrides this for GPU builds)
+# Default SQL flags (GPU blocks below override this for GPU builds)
 SQL_CFLAGS ?= -fPIC -Wno-implicit-int-float-conversion
 ifneq (,$(filter $(CC),nvcc nvc))
 	USING_NVCC = yes
+	# On the CUDA path GPUCXX defaults to the host compiler (nvcc handles both).
+	GPUCXX = $(CC)
 	CFLAGS = -O3 -g --forward-unknown-to-host-compiler --use_fast_math -ffast-math -MMD -MP -fPIC -DGIT_COMMIT_ID=\"$(GIT_TIP)\" -DGKYL_BUILD_DATE=\"$(BUILD_DATE_STR)\" -DGKYL_GIT_CHANGESET=\"$(GIT_TIP)\"
-	NVCC_FLAGS = -x cu -dc -arch=sm_${CUDA_ARCH} -rdc=true --compiler-options="-fPIC" -Xptxas --disable-optimizer-constants
+	GPU_FLAGS = -x cu -dc -arch=sm_${CUDA_ARCH} -rdc=true --compiler-options="-fPIC" -Xptxas --disable-optimizer-constants
+	NVCC_FLAGS = $(GPU_FLAGS)
 	LDFLAGS += -arch=sm_${CUDA_ARCH} -rdc=true
 	ifdef CUDAMATH_LIB_DIR
-		CUDA_LIBS = -L${CUDAMATH_LIB_DIR}
-	else
-		CUDA_LIBS =
+		GPU_LIBS = -L${CUDAMATH_LIB_DIR}
 	endif
-	CUDA_LIBS += -lcublas -lcusparse -lcusolver
+	GPU_LIBS += -lcublas -lcusparse -lcusolver
+	CUDA_LIBS = $(GPU_LIBS)
+	CFLAGS += -DGKYL_HAVE_CUDA -DGKYL_HAVE_GPU
 	SQL_CFLAGS = --forward-unknown-to-host-compiler -fPIC
+endif
+# HIP / hipcc path
+ifeq ($(GPUCXX),hipcc)
+	USING_HIPCC = yes
+	# Host code is built with $(CC) (e.g. Cray cc); device .cu files are built
+	# with $(GPUCXX) (hipcc). ROCm headers are placed on global CFLAGS because
+	# host TUs transitively include gkyl_util.h -> gkyl_gpu_runtime.h ->
+	# <hip/hip_runtime.h>. -D__HIP_PLATFORM_AMD__ is required because hipcc
+	# auto-injects it but the host compiler does not; without it
+	# <hip/hip_vector_types.h> errors. AMD's host_defines.h then handles the
+	# non-hipcc case (makes __device__ / __host__ empty), so kernel .c files
+	# annotated GKYL_CU_DH compile cleanly under host cc.
+	CFLAGS = -O3 -g -ffast-math -fPIC -MMD -MP -DGIT_COMMIT_ID=\"$(GIT_TIP)\" -DGKYL_BUILD_DATE=\"$(BUILD_DATE_STR)\" -DGKYL_GIT_CHANGESET=\"$(GIT_TIP)\"
+	CFLAGS += -DGKYL_HAVE_HIP -DGKYL_HAVE_GPU -D__HIP_PLATFORM_AMD__=1
+	ifdef ROCM_PATH
+		CFLAGS += -I$(ROCM_PATH)/include
+	endif
+	# Device-code compile flags (hipcc). -fgpu-rdc must appear in BOTH compile
+	# and link or symbol resolution will fail. -x hip forces hipcc into HIP mode
+	# even for .c inputs (hipcc only auto-enables HIP mode for .cu/.cpp/.cxx);
+	# the kernel-override block in core/Makefile-core compiles ker/*/*.c with
+	# this flag so __device__ (and therefore GKYL_CU_DH) takes effect and the
+	# kernel functions land in device bitcode.
+	GPU_FLAGS = -x hip --offload-arch=$(GPU_ARCH) -fPIC -fgpu-rdc
+	GPU_LDFLAGS = --hip-link -fgpu-rdc
+	# Final-link libs.
+	ifdef ROCM_PATH
+		GPU_LIBS = -L$(ROCM_PATH)/lib
+	endif
+	# -lamdhip64 is the HIP runtime; rocblas + rocsolver replace cuBLAS for
+	# mat.c's batched LU and gemm calls (see core/zero/gkyl_gpu_blas.h shim).
+	GPU_LIBS += -lamdhip64 -lrocblas -lrocsolver
 endif
 
 CFLAGS += ${HAVE_APP_FLAGS}
@@ -133,6 +178,26 @@ endif
 endif
 endif
 
+# Read RCCL paths and flags if needed (needs MPI and HIPCC).
+# RCCL reuses the existing nccl_comm.c via a macro switch (see plan §4); the
+# include/library names differ but the compiled object is the same one used on
+# the CUDA path. RCCL_LIBS / NCCL_LIBS / NCCL_INC_DIR / NCCL_LIB_DIR are kept
+# disjoint so nothing in the existing CUDA path moves.
+USING_RCCL =
+RCCL_INC_DIR = zero # dummy
+RCCL_LIB_DIR = .
+ifeq (${USE_RCCL}, 1)
+ifdef USING_MPI
+ifdef USING_HIPCC
+	USING_RCCL = yes
+	RCCL_INC_DIR = ${CONF_RCCL_INC_DIR}
+	RCCL_LIB_DIR = ${CONF_RCCL_LIB_DIR}
+	RCCL_LIBS = -lrccl
+	CFLAGS += -DGKYL_HAVE_RCCL
+endif
+endif
+endif
+
 # Read CUDSS paths and flags if needed (needs MPI and NVCC)
 USING_CUDSS =
 CUDSS_INC_DIR = zero # dummy
@@ -173,6 +238,9 @@ endif
 ifdef USING_NVCC
 	BUILD_DIR = cuda-build
 endif
+ifdef USING_HIPCC
+	BUILD_DIR = hip-build
+endif
 
 # Command to make dir
 MKDIR_P ?= mkdir -p
@@ -190,11 +258,13 @@ MKDIR_P ?= mkdir -p
 # By explicitly exporting only the variables sub-makes actually need, we keep
 # the environment small and avoid this issue.
 
-export CC CFLAGS ARCH_FLAGS CUDA_ARCH LDFLAGS BUILD_DIR KERNELS_DIR
+export CC GPUCXX CFLAGS ARCH_FLAGS CUDA_ARCH GPU_ARCH LDFLAGS BUILD_DIR KERNELS_DIR
 export PREFIX INSTALL_PREFIX PROJ_NAME UNAME
 export USING_NVCC NVCC_FLAGS CUDA_LIBS SQL_CFLAGS CUDAMATH_LIBDIR
+export USING_HIPCC GPU_FLAGS GPU_LDFLAGS GPU_LIBS ROCM_PATH
 export USING_MPI MPI_INC_DIR MPI_LIB_DIR MPI_LIBS MPI_RPATH
 export USING_NCCL NCCL_INC_DIR NCCL_LIB_DIR NCCL_LIBS
+export USING_RCCL RCCL_INC_DIR RCCL_LIB_DIR RCCL_LIBS
 export USING_CUDSS CUDSS_INC_DIR CUDSS_LIB_DIR CUDSS_LIBS CUDSS_RPATH
 export USING_LUA LUA_INC_DIR LUA_LIB_DIR LUA_LIBS LUA_RPATH
 export LAPACK_INC_DIR LAPACK_LIB_DIR LAPACK_LIBS LAPACK_LIB_NAME

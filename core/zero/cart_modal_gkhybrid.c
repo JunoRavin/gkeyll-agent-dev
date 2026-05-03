@@ -38,7 +38,7 @@ gkyl_cart_modal_gkhybrid_new(int cdim, int vdim)
   return basis;
 }
 
-#ifndef GKYL_HAVE_CUDA
+#ifndef GKYL_HAVE_GPU
 void
 gkyl_cart_modal_gkhybrid_cu_dev(struct gkyl_basis *basis, int cdim, int vdim)
 {

@@ -9,7 +9,7 @@ tensor_field_raise_or_lower_idx_in_place(struct gkyl_tensor_field *met, int rais
   struct gkyl_tensor_field *ten, struct gkyl_tensor_field *mem)
 {
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_array_is_cu_dev(ten->tdata)) { 
     // make a temporary amount of memory on device
     enum gkyl_tensor_index_loc iloc[GKYL_MAX_DIM];
@@ -69,7 +69,7 @@ tensor_field_raise_or_lower_idx_set(const struct gkyl_tensor_field *met, int rai
   const struct gkyl_tensor_field *ten, struct gkyl_tensor_field *tensor_out)
 {
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_array_is_cu_dev(ten->tdata)) { tensor_field_raise_or_lower_idx_set_cu(met, raised_idx, ten, tensor_out); return; }
 #endif
 

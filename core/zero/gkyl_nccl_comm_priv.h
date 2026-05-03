@@ -2,6 +2,7 @@
 
 // Private header for nccl_comm. Do not include in user-facing header files.
 
+#include <gkyl_gpu_runtime.h>
 #include <gkyl_nccl_comm.h>
 #include <gkyl_alloc.h>
 

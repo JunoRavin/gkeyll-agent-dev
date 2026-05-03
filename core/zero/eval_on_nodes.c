@@ -117,7 +117,7 @@ void
 gkyl_eval_on_nodes_advance(const struct gkyl_eval_on_nodes *up,
   double tm, const struct gkyl_range *update_range, struct gkyl_array *arr)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_array_is_cu_dev(arr)) assert(false);  // arr should be a host array.
 #endif
 

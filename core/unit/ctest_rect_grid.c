@@ -216,7 +216,7 @@ void test_grid_io()
 }
 
 // CUDA specific tests
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 
 int cu_rect_grid_test(const struct gkyl_rect_grid grid);
 
@@ -239,7 +239,7 @@ TEST_LIST = {
   { "grid_find_cell_2d", test_find_cell_2d },
   { "grid_find_cell_3d", test_find_cell_3d },
   { "grid_io", test_grid_io },
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   { "cu_grid_2d", test_cu_grid_2d },
 #endif  
   { NULL, NULL },

@@ -1,3 +1,9 @@
+// Linear-solver TU is CUDA-only per amd_port_plan.md §7. Belt-and-suspenders
+// to the Makefile filter that excludes this file on the HIP path: if anyone
+// bypasses the build system and compiles this directly under hipcc, the
+// outer GKYL_HAVE_CUDA guard makes the TU empty.
+#ifdef GKYL_HAVE_CUDA
+
 #ifndef GKYL_HAVE_CUDSS
 
 #include <cusparse.h>
@@ -489,4 +495,7 @@ gkyl_culinsolver_prob_release(struct gkyl_culinsolver_prob *prob)
 }
 
 // End ifndef GKYL_HAVE_CUDSS statement.
+#endif
+
+// End ifdef GKYL_HAVE_CUDA statement.
 #endif

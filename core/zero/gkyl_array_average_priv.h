@@ -122,7 +122,7 @@ void gkyl_array_average_choose_kernel(struct gkyl_array_average *up)
 
 }
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 // Device new functions
 struct gkyl_array_average*
 gkyl_array_average_cu_dev_new(struct gkyl_array_average *up);

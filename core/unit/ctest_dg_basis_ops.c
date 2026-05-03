@@ -227,7 +227,7 @@ test_eval_array_at_coord_1d_ho() {
   test_eval_array_at_coord_1d_p_hodev(1, false);
 }
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 void
 test_eval_array_at_coord_1d_dev() {
   // p = 1
@@ -240,7 +240,7 @@ TEST_LIST = {
   { "cubic_1d", test_cubic_1d },
   { "cubic_2d", test_cubic_2d },
   { "cubic_evalf_2d", test_cubic_evalf_2d },
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   { "test_eval_array_at_coord_1d_dev", test_eval_array_at_coord_1d_dev },
 #endif
   { NULL, NULL },

@@ -185,7 +185,7 @@ void test_tensor_field_set()
 }
 
 // Cuda specific tests
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 
 void test_cu_tensor_field_base()
 {
@@ -246,7 +246,7 @@ TEST_LIST = {
   { "test_tensor_field_base", test_tensor_field_base },
   { "test_tensor_field_fetch", test_tensor_field_fetch },
   { "test_tensor_field_set", test_tensor_field_set },
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   { "cu_tensor_field_base", test_cu_tensor_field_base },
 #endif
   { NULL, NULL },

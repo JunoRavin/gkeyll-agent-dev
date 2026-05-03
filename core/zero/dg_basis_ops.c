@@ -13,7 +13,7 @@ gkyl_dg_basis_ops_eval_array_at_coord_comp(const struct gkyl_array *arr, const d
   const struct gkyl_basis *basis, const struct gkyl_rect_grid *grid, const struct gkyl_range *rng,
   double *out)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_array_is_cu_dev(arr)) {
     gkyl_dg_basis_ops_eval_array_at_coord_comp_cu(arr, coord, basis, grid, rng, out);
     return;

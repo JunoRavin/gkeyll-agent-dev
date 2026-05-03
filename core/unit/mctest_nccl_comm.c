@@ -1,6 +1,6 @@
 #include <acutest.h>
 
-#ifdef GKYL_HAVE_NCCL
+#if defined(GKYL_HAVE_NCCL) || defined(GKYL_HAVE_RCCL)
 
 #include <math.h>
 #include <stc/cstr.h>

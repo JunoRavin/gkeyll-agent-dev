@@ -116,7 +116,7 @@ void test_mem_buff(bool use_gpu)
 void test_mem_buff_ho(){ test_mem_buff(false); }
 void test_mem_buff_dev(){ test_mem_buff(true); }
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 void
 test_cu_malloc()
 {
@@ -183,7 +183,7 @@ TEST_LIST = {
   { "aligned_alloc", test_aligned_alloc },
   { "aligned_realloc", test_aligned_realloc },
   { "mem_buff_ho", test_mem_buff_ho },
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   { "cu_malloc", test_cu_malloc },
   { "cu_malloc_array", test_cu_malloc_array },
   { "mem_buff_dev", test_mem_buff_dev },

@@ -1,4 +1,11 @@
 #pragma once
+
+// Linear-solver header is CUDA-only per amd_port_plan.md §7. The outer
+// GKYL_HAVE_CUDA guard makes this a no-op include from a HIP TU, so any
+// HIP-side caller that tries to use a cuSolver/cuDSS symbol gets a clear
+// undefined-reference error rather than dragging in CUDA headers.
+#ifdef GKYL_HAVE_CUDA
+
 #ifndef GKYL_HAVE_CUDSS
 
 #include <assert.h>
@@ -111,4 +118,7 @@ double gkyl_culinsolver_get_sol_lin(struct gkyl_culinsolver_prob *prob, long loc
 void gkyl_culinsolver_prob_release(struct gkyl_culinsolver_prob *prob);
 
 // End ifndef GKYL_HAVE_CUDSS statement.
+#endif
+
+// End ifdef GKYL_HAVE_CUDA statement.
 #endif

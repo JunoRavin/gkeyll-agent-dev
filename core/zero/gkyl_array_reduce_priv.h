@@ -2,7 +2,7 @@
 
 #include <gkyl_array_reduce.h>
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 
 /**
  * Reduce a gkyl_array component-wise.

@@ -21,7 +21,7 @@ gkyl_array_clear(struct gkyl_array* out, double val)
 {
   assert(out->type == GKYL_DOUBLE);
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_array_is_cu_dev(out)) {gkyl_array_clear_cu(out, val); return out; }
 #endif
 
@@ -38,7 +38,7 @@ gkyl_array_accumulate(struct gkyl_array* out, double a,
   assert(out->type == GKYL_DOUBLE);
   assert(out->size == inp->size && out->elemsz == inp->elemsz);
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   assert(gkyl_array_is_cu_dev(out)==gkyl_array_is_cu_dev(inp));
   if (gkyl_array_is_cu_dev(out) && gkyl_array_is_cu_dev(inp)) { gkyl_array_accumulate_cu(out, a, inp); return out; }
 #endif
@@ -57,7 +57,7 @@ gkyl_array_accumulate_offset(struct gkyl_array* out, double a,
   assert(out->type == GKYL_DOUBLE);
   assert(out->size == inp->size);
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   assert(gkyl_array_is_cu_dev(out)==gkyl_array_is_cu_dev(inp));
   if (gkyl_array_is_cu_dev(out) && gkyl_array_is_cu_dev(inp)) { gkyl_array_accumulate_offset_cu(out, a, inp, coff); return out; }
 #endif
@@ -85,7 +85,7 @@ gkyl_array_set(struct gkyl_array* out, double a,
   assert(out->type == GKYL_DOUBLE);
   assert(out->size == inp->size && out->elemsz == inp->elemsz);
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   assert(gkyl_array_is_cu_dev(out)==gkyl_array_is_cu_dev(inp));
   if (gkyl_array_is_cu_dev(out)) { gkyl_array_set_cu(out, a, inp); return out; }
 #endif
@@ -104,7 +104,7 @@ gkyl_array_set_offset(struct gkyl_array* out, double a,
   assert(out->type == GKYL_DOUBLE);
   assert(out->size == inp->size);
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   assert(gkyl_array_is_cu_dev(out)==gkyl_array_is_cu_dev(inp));
   if (gkyl_array_is_cu_dev(out)) { gkyl_array_set_offset_cu(out, a, inp, coff); return out; }
 #endif
@@ -128,7 +128,7 @@ gkyl_array_set_offset(struct gkyl_array* out, double a,
 struct gkyl_array*
 gkyl_array_scale(struct gkyl_array* out, double a)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_array_is_cu_dev(out)) { gkyl_array_scale_cu(out, a); return out; }
 #endif
 
@@ -140,7 +140,7 @@ gkyl_array_scale_by_cell(struct gkyl_array* out, const struct gkyl_array* a)
 {
   assert(out->type == GKYL_DOUBLE);
   assert(out->size == a->size && NCOM(a) == 1);
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_array_is_cu_dev(out)) { gkyl_array_scale_by_cell_cu(out, a); return out; }
 #endif
 
@@ -157,7 +157,7 @@ gkyl_array_divide_by_cell(struct gkyl_array* out, const struct gkyl_array* a)
 {
   assert(out->type == GKYL_DOUBLE);
   assert(out->size == a->size && NCOM(a) == 1);
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_array_is_cu_dev(out)) { gkyl_array_divide_by_cell_cu(out, a); return out; }
 #endif
 
@@ -174,7 +174,7 @@ gkyl_array_shiftc(struct gkyl_array* out, double a, unsigned k)
 {
   assert(out->type == GKYL_DOUBLE);
   assert(k < NCOM(out));
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_array_is_cu_dev(out)) { gkyl_array_shiftc_cu(out, a, k); return out; }
 #endif
 
@@ -190,7 +190,7 @@ gkyl_array_clear_range(struct gkyl_array *out, double val, const struct gkyl_ran
 {
   assert(out->type == GKYL_DOUBLE);
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_array_is_cu_dev(out)) { gkyl_array_clear_range_cu(out, val, range); return out; }
 #endif
 
@@ -215,7 +215,7 @@ gkyl_array_accumulate_range(struct gkyl_array *out,
 
   assert(out->size == inp->size);
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   assert(gkyl_array_is_cu_dev(out)==gkyl_array_is_cu_dev(inp));
   if (gkyl_array_is_cu_dev(out)) { gkyl_array_accumulate_range_cu(out, a, inp, range); return out; }
 #endif
@@ -242,7 +242,7 @@ gkyl_array_accumulate_offset_range(struct gkyl_array *out,
   assert(out->type == GKYL_DOUBLE);
   assert(out->size == inp->size);
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   assert(gkyl_array_is_cu_dev(out)==gkyl_array_is_cu_dev(inp));
   if (gkyl_array_is_cu_dev(out)) { gkyl_array_accumulate_offset_range_cu(out, a, inp, coff, range); return out; }
 #endif
@@ -279,7 +279,7 @@ gkyl_array_set_range(struct gkyl_array *out,
   assert(out->type == GKYL_DOUBLE && inp->type == GKYL_DOUBLE);
   assert(out->size == inp->size);
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   assert(gkyl_array_is_cu_dev(out)==gkyl_array_is_cu_dev(inp));
   if (gkyl_array_is_cu_dev(out)) { gkyl_array_set_range_cu(out, a, inp, range); return out; }
 #endif
@@ -306,7 +306,7 @@ gkyl_array_set_range_to_range(struct gkyl_array *out, double a,
   assert(out->elemsz == inp->elemsz);
   assert((inp_range->volume < 1) || (out_range->volume == inp_range->volume));
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   assert(gkyl_array_is_cu_dev(out)==gkyl_array_is_cu_dev(inp));
   if (gkyl_array_is_cu_dev(out)) { gkyl_array_set_range_to_range_cu(out, a, inp, out_range, inp_range); return out; }
 #endif
@@ -344,7 +344,7 @@ gkyl_array_set_offset_range(struct gkyl_array *out,
   assert(out->type == GKYL_DOUBLE && inp->type == GKYL_DOUBLE);
   assert(out->size == inp->size);
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   assert(gkyl_array_is_cu_dev(out)==gkyl_array_is_cu_dev(inp));
   if (gkyl_array_is_cu_dev(out)) { gkyl_array_set_offset_range_cu(out, a, inp, coff, range); return out; }
 #endif
@@ -378,7 +378,7 @@ struct gkyl_array*
 gkyl_array_scale_range(struct gkyl_array *out,
   double a, const struct gkyl_range *range)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_array_is_cu_dev(out)) { gkyl_array_scale_range_cu(out, a, range); return out; }
 #endif
 
@@ -390,7 +390,7 @@ gkyl_array_shiftc_range(struct gkyl_array* out, double a, unsigned k, const stru
 {
   assert(out->type == GKYL_DOUBLE);
   assert(k < NCOM(out));
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_array_is_cu_dev(out)) { gkyl_array_shiftc_range_cu(out, a, k, range); return out; }
 #endif
 
@@ -411,7 +411,7 @@ gkyl_array_copy_range(struct gkyl_array *out,
 {
   assert(out->size == inp->size && out->elemsz == inp->elemsz);
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   assert(gkyl_array_is_cu_dev(out)==gkyl_array_is_cu_dev(inp));
   if (gkyl_array_is_cu_dev(out)) { gkyl_array_copy_range_cu(out, inp, range); return out; }
 #endif
@@ -433,7 +433,7 @@ gkyl_array_copy_range_to_range(struct gkyl_array *out,
   assert(out->elemsz == inp->elemsz);
   assert((inp_range->volume < 1) || (out_range->volume == inp_range->volume));
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   assert(gkyl_array_is_cu_dev(out)==gkyl_array_is_cu_dev(inp));
   if (gkyl_array_is_cu_dev(out)) { gkyl_array_copy_range_to_range_cu(out, inp, out_range, inp_range); return out; }
 #endif
@@ -463,7 +463,7 @@ void
 gkyl_array_copy_to_buffer(void *data, const struct gkyl_array *arr,
   const struct gkyl_range *range)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_array_is_cu_dev(arr)) { gkyl_array_copy_to_buffer_cu(data, arr, range); return; }
 #endif
 
@@ -485,7 +485,7 @@ void
 gkyl_array_copy_from_buffer(struct gkyl_array *arr,
   const void *data, const struct gkyl_range *range)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_array_is_cu_dev(arr)) { gkyl_array_copy_from_buffer_cu(arr, data, range); return; }
 #endif
 
@@ -507,7 +507,7 @@ void
 gkyl_array_copy_to_buffer_fn(void *data, const struct gkyl_array *arr,
   const struct gkyl_range *range, struct gkyl_array_copy_func *cf)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_array_is_cu_dev(arr)) { gkyl_array_copy_to_buffer_fn_cu(data, arr, range, cf); return; }
 #endif
 
@@ -529,7 +529,7 @@ void
 gkyl_array_flip_copy_to_buffer_fn(void *data, const struct gkyl_array *arr,
   int dir, const struct gkyl_range *range, struct gkyl_array_copy_func *cf)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_array_is_cu_dev(arr)) {
     if (gkyl_array_is_cu_dev(arr)) { gkyl_array_flip_copy_to_buffer_fn_cu(data, arr, dir, range, cf); return; }
   }

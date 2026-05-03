@@ -1835,7 +1835,7 @@ test_3d_p3()
 }
 
 // Cuda specific tests
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 
 void test_1d_p1_cu(){ test_1d(1, true); }
 void test_1d_p2_cu(){ test_1d(2, true); }
@@ -1986,7 +1986,7 @@ TEST_LIST = {
   { "test_3d_p3", test_3d_p3 },
   { "test_4d_p1", test_4d_p1 },
   { "test_4d_p2", test_4d_p2 },
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   { "test_1d_p1_cu", test_1d_p1_cu },
   { "test_inv_1d_p1_cu", test_inv_1d_p1_cu },
   { "test_1d_p2_cu", test_1d_p2_cu },

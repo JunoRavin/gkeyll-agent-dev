@@ -8,7 +8,7 @@ gkyl_array_reduce(double *out, const struct gkyl_array *arr, enum gkyl_array_op 
 {
   assert(arr->type == GKYL_DOUBLE);
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_array_is_cu_dev(arr)) {
     switch (op) {
       case GKYL_MAX:
@@ -64,7 +64,7 @@ gkyl_array_reduce_range(double *res,
 {
   assert(arr->type == GKYL_DOUBLE);
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_array_is_cu_dev(arr)) {
     switch (op) {
       case GKYL_MAX:

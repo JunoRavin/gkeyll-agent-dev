@@ -17,13 +17,19 @@ FIN_APP_LIB="-lg0pkpm"
 
 # default build options
 CC=cc
+GPUCXX=
 ARCH_FLAGS=-march=native
 CUDA_ARCH=70
+GPU_ARCH=
 
 USE_CUDSS=
+USE_HIP=
 USE_LUA=
 USE_MPI=
 USE_NCCL=
+USE_RCCL=
+
+ROCM_PATH=${ROCM_PATH}
 
 CONF_LUA_LIB=luajit-5.1
 
@@ -46,18 +52,29 @@ NOTE: At present, the configure script DOES NOT check if you have
 specified valid paths. YOU are responsible for setting them correctly!
 
 CC                         C compiler to use. Default is system cc
+GPUCXX                     GPU device-code compiler. Default is nvcc when CC=nvcc;
+                           set to hipcc to build with HIP/ROCm.
 ARCH_FLAGS                 Architecture flags to use. Default '-march=native'
-CUDA_ARCH                  CUDA architecture flag to specify compute capability. 
-                           Use CUDA_ARCH=70 for V100, CUDA_ARCH=80 for A100, etc. 
+CUDA_ARCH                  CUDA architecture flag to specify compute capability.
+                           Use CUDA_ARCH=70 for V100, CUDA_ARCH=80 for A100, etc.
                            Default is CUDA_ARCH=70.
+GPU_ARCH                   GPU architecture, passed verbatim to nvcc (sm_<arch>) or
+                           hipcc (--offload-arch). Defaults to CUDA_ARCH on the
+                           CUDA path; required on the HIP path (e.g. gfx90a).
+ROCM_PATH                  Path to the ROCm install. Defaults to the ROCM_PATH env
+                           var. Required when --use-hip=yes.
 
 -h
 --help                     This help.
 --prefix=DIR               Prefix where GkeyllZero is installed
                            Default is $HOME/gkylsoft/
 
+--use-hip                  [no] Build HIP/ROCm GPU code (mutually exclusive with
+                           CC=nvcc).
 --use-mpi                  [no] Build MPI-dependent code
---use-nccl                 [no] Build NCCL-dependent code
+--use-nccl                 [no] Build NCCL-dependent code (CUDA only)
+--use-rccl                 [no] Build RCCL-dependent code (HIP only; mutually
+                           exclusive with --use-nccl).
 --use-cudss                [no] Build CUDSS-dependent code
 --use-lua                  [no] Build Lua dependent code
 --app                      [all] What app to build? One of
@@ -78,6 +95,9 @@ Library Includes and Locations
 
 --nccl-inc                 Location of NCCL headers.
 --nccl-lib                 Location to NCCL library.
+
+--rccl-inc                 Location of RCCL headers (default: \$ROCM_PATH/include).
+--rccl-lib                 Location to RCCL library (default: \$ROCM_PATH/lib).
 
 --cudss-inc                Location of cuDSS headers.
 --cudss-lib                Location to cuDSS library.
@@ -138,14 +158,26 @@ do
       [ -n "$value" ] || die "Missing value in flag $key."
       CC="$value"
       ;;
+   GPUCXX)
+      [ -n "$value" ] || die "Missing value in flag $key."
+      GPUCXX="$value"
+      ;;
    ARCH_FLAGS)
       [ -n "$value" ] || die "Missing value in flag $key."
       ARCH_FLAGS="$value"
-      ;;   
+      ;;
    CUDA_ARCH)
       [ -n "$value" ] || die "Missing value in flag $key."
       CUDA_ARCH="$value"
-      ;;   
+      ;;
+   GPU_ARCH)
+      [ -n "$value" ] || die "Missing value in flag $key."
+      GPU_ARCH="$value"
+      ;;
+   ROCM_PATH)
+      [ -n "$value" ] || die "Missing value in flag $key."
+      ROCM_PATH="$value"
+      ;;
    --prefix)
       [ -n "$value" ] || die "Missing value in flag $key."
       PREFIX="$value"
@@ -190,10 +222,14 @@ do
       [ -n "$value" ] || die "Missing value in flag $key."
       CONF_MPI_LIB_DIR="$value"
       ;;
+   --use-hip)
+      [ -n "$value" ] || die "Missing value in flag $key."
+      USE_HIP="$value"
+      ;;
    --use-nccl)
       [ -n "$value" ] || die "Missing value in flag $key."
       USE_NCCL="$value"
-      ;;       
+      ;;
    --nccl-inc)
       [ -n "$value" ] || die "Missing value in flag $key."
       CONF_NCCL_INC_DIR="$value"
@@ -201,6 +237,18 @@ do
    --nccl-lib)
       [ -n "$value" ] || die "Missing value in flag $key."
       CONF_NCCL_LIB_DIR="$value"
+      ;;
+   --use-rccl)
+      [ -n "$value" ] || die "Missing value in flag $key."
+      USE_RCCL="$value"
+      ;;
+   --rccl-inc)
+      [ -n "$value" ] || die "Missing value in flag $key."
+      CONF_RCCL_INC_DIR="$value"
+      ;;
+   --rccl-lib)
+      [ -n "$value" ] || die "Missing value in flag $key."
+      CONF_RCCL_LIB_DIR="$value"
       ;;
    --use-cudss)
       [ -n "$value" ] || die "Missing value in flag $key."
@@ -249,6 +297,43 @@ then
     USE_NCCL=1
 else
     USE_NCCL=
+fi
+
+if [ "$USE_HIP" = "yes" ]
+then
+    USE_HIP=1
+else
+    USE_HIP=
+fi
+
+if [ "$USE_RCCL" = "yes" ]
+then
+    USE_RCCL=1
+else
+    USE_RCCL=
+fi
+
+# Sanity: NCCL and RCCL are mutually exclusive, RCCL implies HIP.
+if [ -n "$USE_NCCL" ] && [ -n "$USE_RCCL" ]
+then
+    die "--use-nccl and --use-rccl are mutually exclusive."
+fi
+if [ -n "$USE_RCCL" ] && [ -z "$USE_HIP" ]
+then
+    die "--use-rccl=yes requires --use-hip=yes."
+fi
+
+# GPU_ARCH falls back to CUDA_ARCH on the CUDA path.
+if [ -z "$GPU_ARCH" ]
+then
+    GPU_ARCH=$CUDA_ARCH
+fi
+
+# RCCL include/lib default under ROCM_PATH.
+if [ -n "$ROCM_PATH" ]
+then
+    : "${CONF_RCCL_INC_DIR=$ROCM_PATH/include}"
+    : "${CONF_RCCL_LIB_DIR=$ROCM_PATH/lib}"
 fi
 
 if [ "$USE_CUDSS" = "yes" ]
@@ -339,8 +424,13 @@ cat <<EOF1 > config.mak
 PREFIX=$PREFIX
 # Compilers
 CC=$CC
+GPUCXX=$GPUCXX
 ARCH_FLAGS=$ARCH_FLAGS
 CUDA_ARCH=$CUDA_ARCH
+GPU_ARCH=$GPU_ARCH
+
+# ROCm install root (used when GPUCXX=hipcc)
+ROCM_PATH=$ROCM_PATH
 
 # App to build
 BUILD_APP=$APP
@@ -361,6 +451,11 @@ CONF_MPI_LIB_DIR=$CONF_MPI_LIB_DIR
 USE_NCCL=$USE_NCCL
 CONF_NCCL_INC_DIR=$CONF_NCCL_INC_DIR
 CONF_NCCL_LIB_DIR=$CONF_NCCL_LIB_DIR
+
+USE_HIP=$USE_HIP
+USE_RCCL=$USE_RCCL
+CONF_RCCL_INC_DIR=$CONF_RCCL_INC_DIR
+CONF_RCCL_LIB_DIR=$CONF_RCCL_LIB_DIR
 
 USE_CUDSS=$USE_CUDSS
 CONF_CUDSS_INC_DIR=$CONF_CUDSS_INC_DIR

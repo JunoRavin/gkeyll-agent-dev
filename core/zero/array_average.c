@@ -97,7 +97,7 @@ gkyl_array_average_new(const struct gkyl_array_average_inp *inp)
     up->subvol *= up->vol_avg_inv;
   }
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (up->use_gpu)
     return gkyl_array_average_cu_dev_new(up);
 #endif
@@ -112,7 +112,7 @@ void gkyl_array_average_advance(const struct gkyl_array_average *up,
   const struct gkyl_array * fin, struct gkyl_array *avgout)
 {
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (up->use_gpu) {
     gkyl_array_average_advance_cu(up, fin, avgout);
     return;
@@ -164,7 +164,7 @@ void gkyl_array_average_advance(const struct gkyl_array_average *up,
 void gkyl_array_average_release(struct gkyl_array_average *up)
 {
   // release memory associated with this updater.
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (up->use_gpu)
     gkyl_cu_free(up->on_dev);
 #endif

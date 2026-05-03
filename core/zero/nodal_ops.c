@@ -30,7 +30,7 @@ gkyl_nodal_ops_n2m_corners(const struct gkyl_nodal_ops *nodal_ops,
   const struct gkyl_range *nrange, const struct gkyl_range *update_range, int num_comp, 
   const struct gkyl_array *nodal_fld, struct gkyl_array *modal_fld) 
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_array_is_cu_dev(modal_fld)) {
     return gkyl_nodal_ops_n2m_cu(nodal_ops, cbasis, grid, 
       nrange, update_range, num_comp, 
@@ -427,7 +427,7 @@ gkyl_nodal_ops_m2n_corners(const struct gkyl_nodal_ops *nodal_ops,
   struct gkyl_array *nodal_fld, const struct gkyl_array *modal_fld) 
 {
     
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_array_is_cu_dev(nodal_fld)) {
     if (nodal_ops->poly_order==2)
       assert(false);
@@ -541,7 +541,7 @@ gkyl_nodal_ops_m2n_deflated(const struct gkyl_nodal_ops *nodal_ops,
   const struct gkyl_range *nrange, const struct gkyl_range *deflated_nrange, const struct gkyl_range *deflated_update_range, int num_comp, 
   struct gkyl_array *nodal_fld, const struct gkyl_array *deflated_modal_fld, int extra_idx) 
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_array_is_cu_dev(nodal_fld)) {
     return gkyl_nodal_ops_m2n_deflated_cu(nodal_ops, deflated_cbasis, deflated_grid, 
       nrange, deflated_nrange, deflated_update_range, num_comp, 

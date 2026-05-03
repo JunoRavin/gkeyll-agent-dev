@@ -90,7 +90,7 @@ struct gkyl_skin_surf_from_ghost {
   const struct gkyl_range *skin_r, *ghost_r;
 };
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 
 void skin_surf_from_ghost_choose_kernel_cu(const struct gkyl_basis basis, enum gkyl_edge_loc edge, 
   int dir, struct gkyl_skin_surf_from_ghost_kernels *kers);
@@ -98,11 +98,15 @@ void skin_surf_from_ghost_choose_kernel_cu(const struct gkyl_basis basis, enum g
 void skin_surf_from_ghost_advance_cu(const struct gkyl_skin_surf_from_ghost *up, struct gkyl_array *field);
 #endif
 
-GKYL_CU_D
-static void skin_surf_from_ghost_choose_kernel(const struct gkyl_basis basis, enum gkyl_edge_loc edge, 
+// Host-only dispatcher: only called from skin_surf_from_ghost.c. The body's
+// GPU branch invokes the host wrapper skin_surf_from_ghost_choose_kernel_cu
+// (which itself launches the device kernel), so this helper is not callable
+// from device code. nvcc tolerated GKYL_CU_D on uncalled __device__ helpers
+// of this shape; hipcc's eager host/device overload resolution does not.
+static void skin_surf_from_ghost_choose_kernel(const struct gkyl_basis basis, enum gkyl_edge_loc edge,
   int dir, bool use_gpu, struct gkyl_skin_surf_from_ghost_kernels *kernels)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (use_gpu) {
     skin_surf_from_ghost_choose_kernel_cu(basis, edge, dir, kernels);
     return;

@@ -1,7 +1,7 @@
 #include <gkyl_multib_comm_conn_priv.h>
 #include <gkyl_comm_priv.h>
 
-#ifdef GKYL_HAVE_NCCL
+#if defined(GKYL_HAVE_NCCL) || defined(GKYL_HAVE_RCCL)
 
 #include <gkyl_nccl_comm_priv.h>
 

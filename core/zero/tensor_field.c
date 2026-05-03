@@ -77,7 +77,7 @@ gkyl_tensor_field_is_cu_dev(const struct gkyl_tensor_field *tfld)
 
 // CUDA specific code
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 
 struct gkyl_tensor_field*
 gkyl_tensor_field_cu_dev_new(size_t rank, size_t ndim, size_t size, const enum gkyl_tensor_index_loc *iloc)
@@ -109,9 +109,11 @@ gkyl_tensor_field_cu_dev_new(size_t rank, size_t ndim, size_t size, const enum g
   // so that the whole tfld->on_dev struct can be passed to a device kernel
   tfld->on_dev = gkyl_cu_malloc(sizeof(struct gkyl_tensor_field));
   gkyl_cu_memcpy(tfld->on_dev, tfld, sizeof(struct gkyl_tensor_field), GKYL_CU_MEMCPY_H2D);
-  // set device-side data pointer in tfld->on_dev to tfld->data 
-  // (which is the host-side pointer to the device data)
-  gkyl_cu_memcpy(&((tfld->on_dev)->tdata), &tfld->tdata, sizeof(void*), GKYL_CU_MEMCPY_H2D);
+  // The device-side tdata field must point at the device-resident gkyl_array
+  // (tfld->tdata->on_dev), not the host-side gkyl_array pointer (tfld->tdata)
+  // that the bulk memcpy above carries — kernels dereference met->tdata to
+  // reach element data and would otherwise read host memory from the GPU.
+  gkyl_cu_memcpy(&((tfld->on_dev)->tdata), &tfld->tdata->on_dev, sizeof(void*), GKYL_CU_MEMCPY_H2D);
 
   return tfld;
 }

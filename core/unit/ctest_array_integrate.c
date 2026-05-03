@@ -557,7 +557,7 @@ void test_2x_gradsq_cpu()
 //  test_3x_op_gradperpsq(2, false);
 //}
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 void test_1x_gpu()
 {
   // p=1
@@ -618,7 +618,7 @@ TEST_LIST = {
   { "test_2x_cpu", test_2x_cpu },
   { "test_1x_gradsq_cpu", test_1x_gradsq_cpu },
   { "test_2x_gradsq_cpu", test_2x_gradsq_cpu },
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   { "test_1x_gpu", test_1x_gpu },
   { "test_2x_gpu", test_2x_gpu },
   { "test_1x_gradsq_gpu", test_1x_gradsq_gpu },

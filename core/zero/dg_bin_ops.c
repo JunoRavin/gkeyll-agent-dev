@@ -59,7 +59,7 @@ gkyl_dg_mul_op(struct gkyl_basis basis,
   int c_lop, const struct gkyl_array* lop,
   int c_rop, const struct gkyl_array* rop)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_array_is_cu_dev(out)) {
     return gkyl_dg_mul_op_cu(basis, c_oop, out, c_lop, lop, c_rop, rop);
   }
@@ -98,7 +98,7 @@ void gkyl_dg_mul_op_range(struct gkyl_basis basis,
   int c_lop, const struct gkyl_array* lop,
   int c_rop, const struct gkyl_array* rop, const struct gkyl_range *range)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_array_is_cu_dev(out)) {
     return gkyl_dg_mul_op_range_cu(basis, c_oop, out, c_lop, lop, c_rop, rop, range);
   }
@@ -142,7 +142,7 @@ gkyl_dg_dot_product_op(struct gkyl_basis basis,
   const struct gkyl_array* lop,
   const struct gkyl_array* rop)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_array_is_cu_dev(out)) {
     return gkyl_dg_dot_product_op_cu(basis, out, lop, rop);
   }
@@ -190,7 +190,7 @@ void gkyl_dg_dot_product_op_range(struct gkyl_basis basis,
   const struct gkyl_array* lop,
   const struct gkyl_array* rop, const struct gkyl_range *range)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_array_is_cu_dev(out)) {
     return gkyl_dg_dot_product_op_range_cu(basis, out, lop, rop, range);
   }
@@ -242,7 +242,7 @@ void gkyl_dg_mul_conf_phase_op_range(const struct gkyl_basis *cbasis,
   const struct gkyl_array* cop, const struct gkyl_array* pop,
   const struct gkyl_range *crange, const struct gkyl_range *prange)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_array_is_cu_dev(pout)) {
     return gkyl_dg_mul_conf_phase_op_range_cu(cbasis, pbasis, pout, cop, pop, crange, prange);
   }
@@ -280,7 +280,7 @@ void gkyl_dg_mul_conf_phase_op_accumulate_range(const struct gkyl_basis *cbasis,
   const struct gkyl_array* cop, const struct gkyl_array* pop,
   const struct gkyl_range *crange, const struct gkyl_range *prange)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_array_is_cu_dev(pout)) {
     return gkyl_dg_mul_conf_phase_op_accumulate_range_cu(cbasis, pbasis, 
       pout, a, cop, pop, crange, prange);
@@ -320,7 +320,7 @@ gkyl_dg_div_op(gkyl_dg_bin_op_mem *mem, struct gkyl_basis basis,
   int c_lop, const struct gkyl_array* lop,
   int c_rop, const struct gkyl_array* rop)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_array_is_cu_dev(out)) {
     return gkyl_dg_div_op_cu(mem, basis, c_oop, out, c_lop, lop, c_rop, rop);
   }
@@ -375,7 +375,7 @@ void gkyl_dg_div_op_range(gkyl_dg_bin_op_mem *mem, struct gkyl_basis basis,
   int c_lop, const struct gkyl_array* lop,
   int c_rop, const struct gkyl_array* rop, const struct gkyl_range *range)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_array_is_cu_dev(out)) {
     return gkyl_dg_div_op_range_cu(mem, basis, c_oop, out, c_lop, lop, c_rop, rop, range);
   }
@@ -442,7 +442,7 @@ void gkyl_dg_div_op_range(gkyl_dg_bin_op_mem *mem, struct gkyl_basis basis,
 void gkyl_dg_inv_op(struct gkyl_basis basis,
   int c_oop, struct gkyl_array* out, int c_iop, const struct gkyl_array* iop)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_array_is_cu_dev(out)) {
     return gkyl_dg_inv_op_cu(basis, c_oop, out, c_iop, iop);
   }
@@ -475,7 +475,7 @@ void gkyl_dg_inv_op_range(struct gkyl_basis basis,
   int c_oop, struct gkyl_array* out, int c_iop, const struct gkyl_array* iop,
   const struct gkyl_range *range)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_array_is_cu_dev(out)) {
     return gkyl_dg_inv_op_range_cu(basis, c_oop, out, c_iop, iop, range);
   }
@@ -514,7 +514,7 @@ gkyl_dg_calc_op_range(struct gkyl_basis basis, int c_oop, struct gkyl_array *out
   int c_iop, const struct gkyl_array *iop,
   struct gkyl_range range, enum gkyl_dg_op op)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_array_is_cu_dev(out)) {
     return gkyl_dg_calc_op_range_cu(basis, c_oop, out, c_iop, iop, range, op);
   }

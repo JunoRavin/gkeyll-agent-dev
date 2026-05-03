@@ -670,7 +670,7 @@ test_gkhyb()
   gkyl_cart_modal_basis_release(basis2);
 }
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 
 int dev_cu_ser_2d(struct gkyl_basis *basis);
 
@@ -702,7 +702,7 @@ TEST_LIST = {
   { "ten_2d", test_ten_2d },
   { "hyb", test_hyb },
   { "gkhyb", test_gkhyb },
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   { "cu_ser_2d", test_cu_ser_2d },
 #endif    
   { NULL, NULL },

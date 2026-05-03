@@ -83,7 +83,7 @@ struct timespec
 gkyl_wall_clock(void)
 {
   struct timespec tm = { 0 };
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   cudaDeviceSynchronize();
 #endif
   // we were using CLOCK_REALTIME here

@@ -214,7 +214,7 @@ double eval_f(const double *phi, const double x, const double y, const double z,
 // List of tests for the test framework
 TEST_LIST = {
   { "test_ssfg_ho", test_ssfg_ho },
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   { "test_ssfg_dev", test_ssfg_dev },
 #endif
   { NULL, NULL },

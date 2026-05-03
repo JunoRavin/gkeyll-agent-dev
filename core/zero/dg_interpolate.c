@@ -152,7 +152,7 @@ gkyl_dg_interpolate_new(int cdim, const struct gkyl_basis *basis,
     up->offset_upper = gkyl_malloc(sizeof(int[3]));
     memcpy(up->offset_upper, offset_upper, sizeof(int[3]));
   }
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (up->use_gpu) {
     up->offset_upper = gkyl_cu_malloc(sizeof(int[3]));
     gkyl_cu_memcpy(up->offset_upper, offset_upper, sizeof(int[3]), GKYL_CU_MEMCPY_H2D);
@@ -172,7 +172,7 @@ gkyl_dg_interpolate_new(int cdim, const struct gkyl_basis *basis,
     else
       up->kernels->grid2stencil = dg_interp_index_stencil_map_coarsen;
   }
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (up->use_gpu) {
     up->kernels = gkyl_cu_malloc(sizeof(struct gkyl_dg_interpolate_kernels));
     dg_interp_choose_kernel_cu(up->kernels, cdim, *basis, up->dir, up->dxRat);
@@ -191,7 +191,7 @@ dg_interpolate_advance_1x(gkyl_dg_interpolate* up,
   const struct gkyl_array *GKYL_RESTRICT fdo, struct gkyl_array *GKYL_RESTRICT ftar)
 {
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (up->use_gpu) {
     gkyl_dg_interpolate_advance_1x_cu(up, range_do, range_tar, fdo, ftar);
     return;
@@ -268,7 +268,7 @@ gkyl_dg_interpolate_release(gkyl_dg_interpolate* up)
       gkyl_free(up->offset_upper);
       gkyl_free(up->kernels);
     }
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
     if (up->use_gpu) {
       gkyl_cu_free(up->offset_upper);
       gkyl_cu_free(up->kernels);

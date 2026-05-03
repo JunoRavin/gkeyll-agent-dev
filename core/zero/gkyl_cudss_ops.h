@@ -1,4 +1,9 @@
 #pragma once
+
+// Linear-solver header is CUDA-only per amd_port_plan.md §7. See
+// gkyl_cusolver_ops.h for the rationale on the outer GKYL_HAVE_CUDA guard.
+#ifdef GKYL_HAVE_CUDA
+
 #ifdef GKYL_HAVE_CUDSS
 
 #include <assert.h>
@@ -106,4 +111,7 @@ double gkyl_culinsolver_get_sol_lin(struct gkyl_culinsolver_prob *prob, long loc
 void gkyl_culinsolver_prob_release(struct gkyl_culinsolver_prob *prob);
 
 // End ifdef GKYL_HAVE_CUDSS statement.
+#endif
+
+// End ifdef GKYL_HAVE_CUDA statement.
 #endif

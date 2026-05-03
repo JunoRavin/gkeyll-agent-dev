@@ -155,7 +155,7 @@ static const dg_interp_kern_p_list_vlasov dg_interp_kern_list_vlasov_ser[] = {
   },
 };
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 // Declaration of cuda device functions.
 void dg_interp_choose_kernel_cu(struct gkyl_dg_interpolate_kernels *kernels,
   int cdim, struct gkyl_basis basis, int dir, double dxRat);

@@ -1299,7 +1299,7 @@ test_range_edge_match(void)
 }
 
 // CUDA specific tests
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 
 /* Function signatures of kernel calls */
 int cu_range_test(const struct gkyl_range rng);
@@ -1361,7 +1361,7 @@ TEST_LIST = {
   { "skin_ghost", test_skin_ghost },
   { "skin_ghost_with_corners", test_skin_ghost_with_corners },
   { "range_edge_match", test_range_edge_match },
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   { "cu_range", test_cu_range },
 #endif  
   { NULL, NULL },

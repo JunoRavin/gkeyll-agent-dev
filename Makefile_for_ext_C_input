@@ -38,22 +38,41 @@ G0_LIB_DIR = ${PREFIX}/gkeyll/lib
 G0_LIB = ${FIN_APP_LIB}
 
 USING_NVCC =
+USING_HIPCC =
 NVCC_FLAGS =
+GPU_FLAGS =
+GPU_LDFLAGS =
+GPU_LIBS =
 CUDA_LIBS =
 ifeq ($(CC), nvcc)
        USING_NVCC = yes
        CFLAGS = -O3 -g --forward-unknown-to-host-compiler --use_fast_math -ffast-math -MMD -MP -fPIC
-       NVCC_FLAGS = -x cu -dc -arch=sm_${CUDA_ARCH} --compiler-options="-fPIC"
+       GPU_FLAGS = -x cu -dc -arch=sm_${CUDA_ARCH} --compiler-options="-fPIC"
+       NVCC_FLAGS = $(GPU_FLAGS)
        LDFLAGS += -arch=sm_${CUDA_ARCH}
        ifdef CUDAMATH_LIB_DIR
-              CUDA_LIBS = -L${CUDAMATH_LIB_DIR}
-       else
-              CUDA_LIBS =
+              GPU_LIBS = -L${CUDAMATH_LIB_DIR}
        endif
-       CUDA_LIBS += -lcublas -lcusparse -lcusolver
+       GPU_LIBS += -lcublas -lcusparse -lcusolver
+       CUDA_LIBS = $(GPU_LIBS)
+       CFLAGS += -DGKYL_HAVE_CUDA -DGKYL_HAVE_GPU
+endif
+ifeq ($(GPUCXX),hipcc)
+       USING_HIPCC = yes
+       CFLAGS = -O3 -g -ffast-math -fPIC -MMD -MP
+       CFLAGS += -DGKYL_HAVE_HIP -DGKYL_HAVE_GPU
+       ifdef ROCM_PATH
+              CFLAGS += -I$(ROCM_PATH)/include
+       endif
+       GPU_FLAGS = --offload-arch=$(GPU_ARCH) -fPIC -fgpu-rdc
+       GPU_LDFLAGS = --hip-link -fgpu-rdc
+       ifdef ROCM_PATH
+              GPU_LIBS = -L$(ROCM_PATH)/lib
+       endif
+       GPU_LIBS += -lamdhip64
 endif
 
-G0_LIBS = ${G0_LIB} ${CUDA_LIBS} -lm -lpthread
+G0_LIBS = ${G0_LIB} ${GPU_LIBS} -lm -lpthread
 G0_RPATH = -Wl,-rpath,${G0_LIB_DIR}
 
 # On OSX we should use Accelerate framework
@@ -99,6 +118,22 @@ endif
 endif
 endif
 
+# Read RCCL paths and flags if needed (needs MPI and HIPCC)
+USING_RCCL =
+RCCL_INC_DIR = zero # dummy
+RCCL_LIB_DIR = .
+ifeq (${USE_RCCL}, 1)
+ifdef USING_MPI
+ifdef USING_HIPCC
+	USING_RCCL = yes
+	RCCL_INC_DIR = ${CONF_RCCL_INC_DIR}
+	RCCL_LIB_DIR = ${CONF_RCCL_LIB_DIR}
+	RCCL_LIBS = -lrccl
+	CFLAGS += -DGKYL_HAVE_RCCL
+endif
+endif
+endif
+
 # Read CUDSS paths and flags if needed (needs MPI and NVCC)
 USING_CUDSS =
 CUDSS_INC_DIR = zero # dummy
@@ -128,9 +163,9 @@ ifeq (${USE_LUA}, 1)
 	CFLAGS += -DGKYL_HAVE_LUA
 endif
 
-INCLUDES = -I${G0_INC_DIR} -I${LAPACK_INC_DIR} -I${SUPERLU_INC_DIR} -I${MPI_INC_DIR} -I${LUA_INC_DIR} -I${NCCL_INC_DIR} -I${CUDSS_INC_DIR}
-LIB_DIRS = -L${LAPACK_LIB_DIR} -L${SUPERLU_LIB_DIR} -L${MPI_LIB_DIR} -L${LUA_LIB_DIR} -L${NCCL_LIB_DIR} -L${CUDSS_LIB_DIR}
-EXT_LIBS = ${LAPACK_LIBS} ${SUPERLU_LIBS} ${MPI_RPATH} ${MPI_LIBS} ${LUA_RPATH} ${LUA_LIBS} ${NCCL_LIBS} ${CUDSS_RPATH} ${CUDSS_LIBS} -lm -lpthread -ldl
+INCLUDES = -I${G0_INC_DIR} -I${LAPACK_INC_DIR} -I${SUPERLU_INC_DIR} -I${MPI_INC_DIR} -I${LUA_INC_DIR} -I${NCCL_INC_DIR} -I${RCCL_INC_DIR} -I${CUDSS_INC_DIR}
+LIB_DIRS = -L${LAPACK_LIB_DIR} -L${SUPERLU_LIB_DIR} -L${MPI_LIB_DIR} -L${LUA_LIB_DIR} -L${NCCL_LIB_DIR} -L${RCCL_LIB_DIR} -L${CUDSS_LIB_DIR}
+EXT_LIBS = ${LAPACK_LIBS} ${SUPERLU_LIBS} ${MPI_RPATH} ${MPI_LIBS} ${LUA_RPATH} ${LUA_LIBS} ${NCCL_LIBS} ${RCCL_LIBS} ${CUDSS_RPATH} ${CUDSS_LIBS} -lm -lpthread -ldl
 
 # Find all .c files and generate corresponding executable names
 SRCS := $(wildcard *.c)

@@ -55,7 +55,7 @@ array_free(const struct gkyl_ref_count *ref)
     // only free if we allocated memory ourselves
   
     if (GKYL_IS_CU_ALLOC(arr->flags)) {
-#ifdef GKYL_HAVE_CUDA 
+#ifdef GKYL_HAVE_GPU
       cudaStreamDestroy(arr->iostream);
 #endif
       gkyl_cu_free(arr->data);
@@ -222,7 +222,7 @@ gkyl_array_clone(const struct gkyl_array* src)
     arr->data = g_array_alloc(arr->size, arr->esznc);
     memcpy(arr->data, src->data, arr->size*arr->esznc);
   }
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (GKYL_IS_CU_ALLOC(src->flags)) {
     arr->nthreads = src->nthreads;
     arr->nblocks = src->nblocks;
@@ -256,9 +256,9 @@ gkyl_array_release(const struct gkyl_array* arr)
     gkyl_ref_count_dec(&arr->ref_count);
 }
 
-// CUDA specific code
+// GPU-specific code (CUDA or HIP)
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 
 struct gkyl_array*
 gkyl_array_cu_dev_new(enum gkyl_elem_type type, size_t ncomp, size_t size)
@@ -373,4 +373,4 @@ gkyl_array_cu_host_new(enum gkyl_elem_type type, size_t ncomp, size_t size)
   return 0;
 }
 
-#endif // CUDA specific code
+#endif // GPU specific code

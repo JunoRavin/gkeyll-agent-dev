@@ -325,7 +325,7 @@ gkyl_dg_array_mask_new(struct gkyl_dg_array_mask_inp mask_inp)
   }
 
   struct gkyl_dg_array_mask *mask_out = mask;
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (mask->use_gpu) {
     mask_out = gkyl_dg_array_mask_cu_dev_new(mask);
     gkyl_dg_array_mask_release(mask);
@@ -338,7 +338,7 @@ gkyl_dg_array_mask_new(struct gkyl_dg_array_mask_inp mask_inp)
 void
 gkyl_dg_array_mask_advance(struct gkyl_dg_array_mask *mask, const struct gkyl_array *arr_in)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (mask->use_gpu) {
     gkyl_dg_array_mask_advance_cu(mask, arr_in);
     return;
@@ -364,7 +364,7 @@ gkyl_dg_array_mask_acquire(struct gkyl_dg_array_mask *mask)
 void
 gkyl_dg_array_mask_eval_idx(struct gkyl_dg_array_mask *mask, const int *idx, bool *val)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (mask->use_gpu) {
     gkyl_dg_array_mask_eval_idx_cu(mask, idx, val);
     return;

@@ -883,7 +883,7 @@ void test_array_shiftc_range_ho() {
 }
 
 // Cuda specific tests
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 
 void test_cu_array_clear()
 {
@@ -1877,7 +1877,7 @@ TEST_LIST = {
   { "array_flip_copy_buffer_fn", test_array_flip_copy_buffer_fn },
   { "array_copy_range", test_array_copy_range},
   { "array_copy_split", test_array_copy_split },
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   { "cu_array_clear", test_cu_array_clear},
   { "cu_array_clear_range", test_cu_array_clear_range},
   { "cu_array_accumulate", test_cu_array_accumulate},

@@ -20,7 +20,7 @@ gkyl_skin_surf_from_ghost_new(int dir, enum gkyl_edge_loc edge, const struct gky
   // Choose the kernel that does the skin surf from ghost copy
   if (!use_gpu)
     up->kernels = gkyl_malloc(sizeof(struct gkyl_skin_surf_from_ghost_kernels));
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (use_gpu)
     up->kernels = gkyl_cu_malloc(sizeof(struct gkyl_skin_surf_from_ghost_kernels));
 #endif
@@ -33,7 +33,7 @@ gkyl_skin_surf_from_ghost_new(int dir, enum gkyl_edge_loc edge, const struct gky
 void
 gkyl_skin_surf_from_ghost_advance(const struct gkyl_skin_surf_from_ghost *up, struct gkyl_array *field)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (up->use_gpu) {
     skin_surf_from_ghost_advance_cu(up, field);
     return;
@@ -70,7 +70,7 @@ void gkyl_skin_surf_from_ghost_release(struct gkyl_skin_surf_from_ghost *up)
   // Release memory associated with this updater.
   if (!up->use_gpu)
     gkyl_free(up->kernels);
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (up->use_gpu)
     gkyl_cu_free(up->kernels);
 #endif

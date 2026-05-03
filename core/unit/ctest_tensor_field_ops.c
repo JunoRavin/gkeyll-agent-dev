@@ -554,7 +554,7 @@ void test_tensor_field_raise_idx_set_2()
 
 // Cuda specific tests
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 
 // This test is intended to verify: A_ij A^jk = \delta_i^k lowered and set 
 // Tests a denser, asymmetric A, multiplication
@@ -1052,7 +1052,7 @@ TEST_LIST = {
   { "test_tensor_field_lower_idx_set", test_tensor_field_lower_idx_set },  
   { "test_tensor_field_lower_idx_set_2", test_tensor_field_lower_idx_set_2 },
   { "test_tensor_field_raise_idx_set_2", test_tensor_field_raise_idx_set_2 },
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   { "cu_tensor_field_lower_idx_in_place", test_cu_tensor_field_lower_idx_in_place },
   { "cu_tensor_field_raise_idx_in_place", test_cu_tensor_field_raise_idx_in_place },
   { "cu_tensor_field_lower_idx_set", test_cu_tensor_field_lower_idx_set },

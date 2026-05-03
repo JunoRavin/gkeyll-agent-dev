@@ -1,7 +1,7 @@
 /* -*- c++ -*- */
 
-// CUB for reductions.
-#include <cub/cub.cuh>
+// CUB / hipCUB for block-level reductions.
+#include <gkyl_gpu_reduce.h>
 
 extern "C" {
 #include <gkyl_alloc.h>
