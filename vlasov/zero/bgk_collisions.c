@@ -38,7 +38,7 @@ gkyl_bgk_collisions_advance(const gkyl_bgk_collisions *up,
   bool implicit_step, double dt, struct gkyl_array *out, struct gkyl_array *cflfreq)
 {
   // Compute nu*f_M - nu*f, and its contribution to the CFL rate.
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (up->use_gpu)
     return gkyl_bgk_collisions_advance_cu(up, crange, prange, nu, nufM, fin, implicit_step, dt, out, cflfreq);
 #endif

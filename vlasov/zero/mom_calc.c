@@ -10,7 +10,7 @@ struct gkyl_mom_calc*
 gkyl_mom_calc_new(const struct gkyl_rect_grid *grid,
   const struct gkyl_mom_type *momt, bool use_gpu)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if(use_gpu) {
     return gkyl_mom_calc_cu_dev_new(grid, momt);
   } 
@@ -82,7 +82,7 @@ void gkyl_mom_calc_release(gkyl_mom_calc* up)
   gkyl_free(up);
 }
 
-#ifndef GKYL_HAVE_CUDA
+#ifndef GKYL_HAVE_GPU
 
 void
 gkyl_mom_calc_advance_cu(const struct gkyl_mom_calc* mcalc,

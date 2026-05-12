@@ -1101,7 +1101,7 @@ GKYL_CU_D static double boundary_surf(const struct gkyl_dg_eqn* eqn, int dir,
 
 #undef _cfD
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 /**
  * Create a new vlasov diffusion equation object on the device.
  *

@@ -1,5 +1,5 @@
 #include <gkyl_canonical_pb_kernels.h> 
-double canonical_pb_two_fluid_vol_2x_ser_p2(const double *w, const double *dxv, const double *phi, const double *f, double* GKYL_RESTRICT out) 
+GKYL_CU_DH double canonical_pb_two_fluid_vol_2x_ser_p2(const double *w, const double *dxv, const double *phi, const double *f, double* GKYL_RESTRICT out) 
 { 
   // w[NDIM]: cell-center.
   // dxv[NDIM]: cell length.

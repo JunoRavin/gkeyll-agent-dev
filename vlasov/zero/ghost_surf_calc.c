@@ -85,7 +85,7 @@ gkyl_ghost_surf_calc*
 gkyl_ghost_surf_calc_new(const struct gkyl_rect_grid *grid,
   const struct gkyl_dg_eqn *equation, int cdim, bool use_gpu)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if(use_gpu) {
     return gkyl_ghost_surf_calc_cu_dev_new(grid, equation, cdim);
   } 
@@ -112,7 +112,7 @@ gkyl_ghost_surf_calc_release(gkyl_ghost_surf_calc* up)
   gkyl_free(up);
 }
 
-#ifndef GKYL_HAVE_CUDA
+#ifndef GKYL_HAVE_GPU
 
 void
 gkyl_ghost_surf_calc_advance_cu(gkyl_ghost_surf_calc *gcalc,

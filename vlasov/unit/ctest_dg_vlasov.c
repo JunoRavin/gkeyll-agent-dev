@@ -36,7 +36,7 @@ test_dg_vlasov()
   gkyl_dg_eqn_release(eqn);
 }
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 
 int cu_vlasov_test(const struct gkyl_dg_eqn *eqn);
 
@@ -77,7 +77,7 @@ test_cu_dg_vlasov()
 
 TEST_LIST = {
   { "dg_vlasov", test_dg_vlasov },
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   { "cu_dg_vlasov", test_cu_dg_vlasov },
 #endif  
   { NULL, NULL },

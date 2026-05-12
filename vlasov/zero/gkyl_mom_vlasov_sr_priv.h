@@ -1416,7 +1416,7 @@ static const gkyl_vlasov_sr_mom_kern_list ser_int_five_moments_kernels[] = {
  */
 void gkyl_mom_vm_sr_free(const struct gkyl_ref_count *ref);
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 /**
  * Create new special relativistic Vlasov moment type object on NV-GPU: 
  * see new() method above for documentation.

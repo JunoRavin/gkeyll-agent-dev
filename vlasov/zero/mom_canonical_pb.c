@@ -20,7 +20,7 @@ gkyl_mom_can_pb_free(const struct gkyl_ref_count *ref)
 void
 gkyl_mom_canonical_pb_set_auxfields(const struct gkyl_mom_type *momt, struct gkyl_mom_canonical_pb_auxfields auxin)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_mom_type_is_cu_dev(momt)) {
     gkyl_mom_canonical_pb_set_auxfields_cu(momt->on_dev, auxin);
     return;
@@ -37,7 +37,7 @@ gkyl_mom_canonical_pb_new(const struct gkyl_basis* cbasis, const struct gkyl_bas
 {
   assert(cbasis->poly_order == pbasis->poly_order);
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (use_gpu) {
     return gkyl_mom_canonical_pb_cu_dev_new(cbasis, pbasis, phase_range, mom_type);
   } 
@@ -120,7 +120,7 @@ gkyl_int_mom_canonical_pb_new(const struct gkyl_basis* cbasis, const struct gkyl
   // Integrates all moments [ mM0, M1i_from_H, MEnergy ]
   assert(cbasis->poly_order == pbasis->poly_order);
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (use_gpu) {
     return gkyl_int_mom_canonical_pb_cu_dev_new(cbasis, pbasis, phase_range, mom_type);
   } 

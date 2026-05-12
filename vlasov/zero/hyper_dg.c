@@ -37,7 +37,7 @@ create_offsets(struct gkyl_hyper_dg *up, const struct gkyl_range *range, long of
 void
 gkyl_hyper_dg_set_update_vol(gkyl_hyper_dg *up, int update_vol_term)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (up->use_gpu) {
     gkyl_hyper_dg_set_update_vol_cu(up, update_vol_term);
     return;
@@ -50,7 +50,7 @@ void
 gkyl_hyper_dg_advance(struct gkyl_hyper_dg *up, const struct gkyl_range *update_range,
   const struct gkyl_array *fIn, struct gkyl_array *cflrate, struct gkyl_array *rhs)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (up->use_gpu) {
     gkyl_hyper_dg_advance_cu(up, update_range, fIn, cflrate, rhs);
     return;
@@ -222,7 +222,7 @@ gkyl_hyper_dg_new(const struct gkyl_rect_grid *grid,
   int num_up_dirs, int update_dirs[GKYL_MAX_DIM], int zero_flux_flags[2*GKYL_MAX_DIM],
   int update_vol_term, bool use_gpu)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (use_gpu) {
     return gkyl_hyper_dg_cu_dev_new(grid, basis, equation, num_up_dirs, update_dirs, zero_flux_flags, update_vol_term);
   } 

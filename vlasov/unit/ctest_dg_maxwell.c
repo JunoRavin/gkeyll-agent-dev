@@ -33,7 +33,7 @@ test_dg_max()
   gkyl_dg_eqn_release(eqn);
 }
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 
 int cu_maxwell_test(const struct gkyl_dg_eqn *eqn);
 
@@ -65,7 +65,7 @@ test_cu_dg_max()
 
 TEST_LIST = {
   { "dg_max", test_dg_max },
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   { "cu_dg_max", test_cu_dg_max },
 #endif  
   { NULL, NULL },

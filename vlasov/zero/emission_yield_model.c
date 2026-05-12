@@ -7,7 +7,7 @@ struct gkyl_emission_yield_model*
 gkyl_emission_yield_furman_pivi_new(double charge, double deltahat_ts, double Ehat_ts, double t1,
   double t2, double t3, double t4, double s, bool use_gpu)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if(use_gpu) {
     return gkyl_emission_yield_furman_pivi_cu_dev_new(charge, deltahat_ts, Ehat_ts,
       t1, t2, t3, t4, s);
@@ -37,7 +37,7 @@ struct gkyl_emission_yield_model*
 gkyl_emission_yield_schou_new(double charge, double int_wall, double a2, double a3, double a4,
   double a5, double nw, bool use_gpu)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if(use_gpu) {
     return gkyl_emission_yield_schou_cu_dev_new(charge, int_wall, a2, a3, a4, a5, nw);
   }
@@ -64,7 +64,7 @@ struct gkyl_emission_yield_model*
 gkyl_emission_yield_schou_srim_new(double charge, double int_wall, double lorentz_norm, double E0,
   double tau, double alpha, double beta, double gauss_norm, double gauss_E0, double gauss_tau, bool use_gpu)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if(use_gpu) {
     return gkyl_emission_yield_schou_srim_cu_dev_new(charge, int_wall, lorentz_norm, E0, tau, alpha, beta,
     gauss_norm, gauss_E0, gauss_tau);
@@ -94,7 +94,7 @@ gkyl_emission_yield_schou_srim_new(double charge, double int_wall, double lorent
 struct gkyl_emission_yield_model*
 gkyl_emission_yield_constant_new(double charge, double delta, bool use_gpu)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if(use_gpu) {
     return gkyl_emission_yield_constant_cu_dev_new(charge, delta);
   }

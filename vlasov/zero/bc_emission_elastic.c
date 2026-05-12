@@ -12,7 +12,7 @@ struct gkyl_array_copy_func*
 gkyl_bc_emission_elastic_create_arr_copy_func(int dir, int cdim, const struct gkyl_basis *basis,
   int ncomp, bool use_gpu)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (use_gpu)
     return gkyl_bc_emission_elastic_create_arr_copy_func_cu(dir, cdim, basis, ncomp);
 #endif
@@ -65,7 +65,7 @@ gkyl_bc_emission_elastic_new(struct gkyl_emission_elastic_model *elastic_model,
   gkyl_proj_on_basis *proj = gkyl_proj_on_basis_new(grid, basis, poly_order + 1, 1,
       up->elastic_model->function, up->elastic_model);
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (use_gpu) {
     gkyl_proj_on_basis_advance(proj, 0.0, emit_buff_r, proj_buffer);
     

@@ -1,4 +1,5 @@
 /* -*- c++ -*- */
+#include <cstring>  // host memcpy; ROCm 7.2.0 HIP headers declare a __device__ memcpy that otherwise shadows the host one in this TU.
 extern "C" {
 #include <gkyl_velocity_map.h>
 #include <gkyl_velocity_map_priv.h>

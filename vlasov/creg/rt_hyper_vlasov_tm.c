@@ -128,7 +128,7 @@ main(int argc, char **argv)
   struct kerntm_inp inp = get_inp(argc, argv);
 
   bool use_gpu = false;
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (inp.use_gpu) {
     printf("Running kernel timers on GPU with:\n");
     use_gpu = true;
@@ -240,7 +240,7 @@ main(int argc, char **argv)
 
   // run hyper_dg_advance
   int nrep = inp.nloop;
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   cudaDeviceSynchronize();
 #endif
   struct timespec tm_start = gkyl_wall_clock();
@@ -252,7 +252,7 @@ main(int argc, char **argv)
     gkyl_hyper_dg_advance(slvr, &phaseRange, fin, cflrate, rhs);
   }
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   cudaDeviceSynchronize();
 #endif
   

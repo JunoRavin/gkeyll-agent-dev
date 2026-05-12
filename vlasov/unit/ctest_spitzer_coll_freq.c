@@ -515,7 +515,7 @@ void test_2x_p2() { test_2x(2, false); }
 void test_3x_p1() { test_3x(1, false); }
 void test_3x_p2() { test_3x(2, false); }
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 void test_1x_p1_gpu() { test_1x(1, true); }
 void test_1x_p2_gpu() { test_1x(2, true); }
 
@@ -535,7 +535,7 @@ TEST_LIST = {
 
   { "test_3x_p1", test_3x_p1 },
   { "test_3x_p2", test_3x_p2 },
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   { "test_1x_p1_gpu", test_1x_p1_gpu },
   { "test_1x_p2_gpu", test_1x_p2_gpu },
 

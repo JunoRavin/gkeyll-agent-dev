@@ -19,6 +19,22 @@ ifdef USING_NVCC
 	SRCS += $(shell find $(SRC_DIRS) -name *.cu)
 	SRCS += $(shell find $(UNIT_DIRS) -name *.cu)
 endif
+ifdef USING_HIPCC
+	# Mirror of core/Makefile-core's USING_HIPCC SRCS arm: pick up *.cu in
+	# both the source and unit dirs so they compile under hipcc via the
+	# core shims (gkyl_gpu_runtime.h, gkyl_gpu_reduce.h, gkyl_gpu_blas.h).
+	# fem_poisson_cu.cu is excluded: its body calls gkyl_culinsolver_*
+	# (cuSolver/cuDSS sparse LU) which is CUDA-only per amd_port_plan.md
+	# §7. The host-side fem_poisson.c keeps its GPU dispatch under
+	# GKYL_HAVE_CUDA so the fem_poisson GPU path is unreachable under HIP
+	# without forcing a HIP-side rocSPARSE port. Vlasov-Maxwell sims do
+	# not use fem_poisson; only Vlasov-Poisson sims (rt_vp_*) do, and
+	# those will need a separate sparse-solver porting effort.
+	HIP_DEFER_SRCS := zero/fem_poisson_cu.cu
+	SRCS += $(filter-out $(HIP_DEFER_SRCS), \
+	          $(shell find $(SRC_DIRS) -name *.cu))
+	SRCS += $(shell find $(UNIT_DIRS) -name *.cu)
+endif
 OBJS := $(SRCS:%=../$(BUILD_DIR)/moments/%.o)
 DEPS := $(OBJS:.o=.d)
 
@@ -33,20 +49,24 @@ ifdef USING_NVCC
     UNIT_CU_SRCS = unit/ctest_wave_geom_cu.cu unit/ctest_wv_euler_cu.cu unit/ctest_wv_maxwell_cu.cu unit/ctest_wv_ten_moment_cu.cu
     UNIT_CU_OBJS = $(UNIT_CU_SRCS:%=../$(BUILD_DIR)/moments/%.o)
 endif
+ifdef USING_HIPCC
+    UNIT_CU_SRCS = unit/ctest_wave_geom_cu.cu unit/ctest_wv_euler_cu.cu unit/ctest_wv_maxwell_cu.cu unit/ctest_wv_ten_moment_cu.cu
+    UNIT_CU_OBJS = $(UNIT_CU_SRCS:%=../$(BUILD_DIR)/moments/%.o)
+endif
 
 REGS := $(patsubst %.c,../${BUILD_DIR}/moments/%,$(wildcard creg/rt_*.c))
 AMR_REGS := $(patsubst %.c,../${BUILD_DIR}/moments/%,$(wildcard amr_creg/rt_*.c))
 
 KERN_INC_DIRS = $(shell find $(KERNELS_DIR) -type d)
 KERN_INCLUDES = $(addprefix -I,$(KERN_INC_DIRS))
-EXT_INCS := -I${MPI_INC_DIR} -I${NCCL_INC_DIR} -I${CUDSS_INC_DIR} -I${LUA_INC_DIR} -I${LAPACK_INC_DIR} -I${SUPERLU_INC_DIR}
+EXT_INCS := -I${MPI_INC_DIR} -I${NCCL_INC_DIR} -I${RCCL_INC_DIR} -I${CUDSS_INC_DIR} -I${LUA_INC_DIR} -I${LAPACK_INC_DIR} -I${SUPERLU_INC_DIR}
 INCS := ${EXT_INCS} ${CORE_INCS} -I$(KERNELS_DIR) -Izero -Iapps -Icreg -Iamr $(KERN_INCLUDES)
 
 CORE_LIB_DIR := -L../${BUILD_DIR}/core
 CORE_LIB := -lg0core
 
-EXEC_LIB_DIRS = -L${LAPACK_LIB_DIR} -L${SUPERLU_LIB_DIR} -L${MPI_LIB_DIR} -L${NCCL_LIB_DIR} -L${CUDSS_LIB_DIR} -L${LUA_LIB_DIR}
-EXEC_EXT_LIBS = ${LAPACK_LIBS} ${SUPERLU_LIBS} ${CUDA_LIBS} ${MPI_RPATH} ${MPI_LIBS} ${NCCL_LIBS} ${CUDSS_RPATH} ${CUDSS_LIBS} ${LUA_RPATH} ${LUA_LIBS} -lm -lpthread -ldl
+EXEC_LIB_DIRS = -L${LAPACK_LIB_DIR} -L${SUPERLU_LIB_DIR} -L${MPI_LIB_DIR} -L${NCCL_LIB_DIR} -L${RCCL_LIB_DIR} -L${CUDSS_LIB_DIR} -L${LUA_LIB_DIR}
+EXEC_EXT_LIBS = ${LAPACK_LIBS} ${SUPERLU_LIBS} ${GPU_LIBS} ${MPI_RPATH} ${MPI_LIBS} ${NCCL_LIBS} ${RCCL_LIBS} ${CUDSS_RPATH} ${CUDSS_LIBS} ${LUA_RPATH} ${LUA_LIBS} -lm -lpthread -ldl
 EXEC_LIBS = -L../${BUILD_DIR}/moments ${LLIB} ${SLLIB} ${EXEC_EXT_LIBS}
 
 LDFLAGS += -Wl,-rpath,./${BUILD_DIR}/core
@@ -68,10 +88,12 @@ all: $(LLIB) $(SLLIB) ## Build all targets
 	$(MKDIR_P) $(dir $@)
 	$(CC) -c $(CFLAGS) $(ARCH_FLAGS) $(INCS) $< -o $@
 
-# Build commands for CUDA source                                                                                                                                                     
+# Build commands for CUDA / HIP device source. On the CUDA path GPUCXX==CC==nvcc
+# and GPU_FLAGS==NVCC_FLAGS (no-op rename); on the HIP path GPUCXX==hipcc and
+# GPU_FLAGS carries -x hip --offload-arch + -fgpu-rdc.
 ../$(BUILD_DIR)/moments/%.cu.o: %.cu
 	$(MKDIR_P) $(dir $@)
-	$(CC) -c $(CFLAGS) $(NVCC_FLAGS) $(INCS) $< -o $@
+	$(GPUCXX) -c $(CFLAGS) $(GPU_FLAGS) $(INCS) $< -o $@
 
 # Unit tests
 $(UNITS): ../${BUILD_DIR}/moments/unit/%: unit/%.c $(LLIB) $(SLLIB)
@@ -93,10 +115,19 @@ $(AMR_REGS): ../${BUILD_DIR}/moments/amr_creg/%: amr_creg/%.c $(LLIB) $(SLLIB)
 	$(MKDIR_P) ../${BUILD_DIR}/moments/amr_creg
 	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $< -I. $(INCS) ${EXEC_LIB_DIRS} ${EXEC_LIBS}
 
+# Kernel-override: under NVCC we compile fem_poisson kernel .c files with
+# nvcc so their GKYL_CU_DH-annotated functions land in device bitcode for
+# the cuSolver-backed fem_poisson_cu.cu to call. Under HIP we deliberately
+# do NOT do this: fem_poisson_cu.cu is filter-out'd from the HIP build
+# (see SRCS arm above), so no device code references these kernels. The
+# host-side driver (fem_poisson.c) still calls them, but as plain host
+# functions through normal cc compilation. Compiling them with -x hip
+# would also surface a header/.c GKYL_CU_DH mismatch in this kernel
+# family that's harmless on the host-only path.
 ifdef USING_NVCC
 ../$(BUILD_DIR)/moments/$(KERNELS_DIR)/fem_poisson/%.c.o : $(KERNELS_DIR)/fem_poisson/%.c
 	$(MKDIR_P) $(dir $@)
-	$(CC) $(CFLAGS) $(NVCC_FLAGS) $(INCS) -c $< -o $@
+	$(GPUCXX) $(CFLAGS) $(GPU_FLAGS) $(INCS) -c $< -o $@
 endif
 
 # build lib
@@ -106,6 +137,12 @@ $(LLIB): $(OBJS) ../$(BUILD_DIR)/core/libg0core.so
 ifeq ($(UNAME),Linux)
 ifdef USING_NVCC
 	$(CC) -shared -o $@ ${CORE_LINK_OBJS} ${MOMENTS_LINK_OBJS} ${MOMENTS_LINK_CU_OBJS} -Xlinker=-soname -Xlinker=libg0moments.so -L${LAPACK_LIB_DIR} -L${SUPERLU_LIB_DIR} -L${MPI_LIB_DIR} -L${NCCL_LIB_DIR} -L${CUDSS_LIB_DIR} -L${LUA_LIB_DIR} ${LAPACK_LIBS} ${SUPERLU_LIBS} ${CUDA_LIBS} ${MPI_RPATH} ${MPI_LIBS} ${NCCL_LIBS} ${CUDSS_RPATH} ${CUDSS_LIBS} ${LUA_RPATH} ${LUA_LIBS} -lm -lpthread -ldl -arch=sm_${CUDA_ARCH} -rdc=true --compiler-options="-fPIC"
+else ifdef USING_HIPCC
+	# hipcc drives the link so -fgpu-rdc relocatable device code resolves.
+	# Mirror of core/Makefile-core's HIPCC arm. MOMENTS_LINK_CU_OBJS
+	# carries the moments unit-test .cu.o files; MOMENTS_LINK_OBJS carries
+	# host .c.o + zero/_cu.cu.o + ker/fem_poisson/*.c.o.
+	$(GPUCXX) -shared $(GPU_LDFLAGS) -fPIC -o $@ ${CORE_LINK_OBJS} ${MOMENTS_LINK_OBJS} ${MOMENTS_LINK_CU_OBJS} -Wl,-soname,libg0moments.so -L${LAPACK_LIB_DIR} -L${SUPERLU_LIB_DIR} -L${MPI_LIB_DIR} -L${NCCL_LIB_DIR} -L${RCCL_LIB_DIR} -L${LUA_LIB_DIR} ${LAPACK_LIBS} ${SUPERLU_LIBS} ${MPI_RPATH} ${GPU_LIBS} ${MPI_LIBS} ${NCCL_LIBS} ${RCCL_LIBS} ${LUA_RPATH} ${LUA_LIBS} -lm -lpthread -ldl
 else
 	$(CC) -shared -o $@  ${CORE_LINK_OBJS} ${MOMENTS_LINK_OBJS}  -Wl,-soname,libg0moments.so -L${LAPACK_LIB_DIR} -L${SUPERLU_LIB_DIR} -L${MPI_LIB_DIR} -L${NCCL_LIB_DIR} -L${CUDSS_LIB_DIR} -L${LUA_LIB_DIR} ${LAPACK_LIBS} ${SUPERLU_LIBS} ${CUDA_LIBS} ${MPI_RPATH} ${MPI_LIBS} ${NCCL_LIBS} ${CUDSS_RPATH} ${CUDSS_LIBS} ${LUA_RPATH} ${LUA_LIBS} -lm -lpthread -ldl
 endif

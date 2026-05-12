@@ -183,7 +183,7 @@ test_maxwell_waves()
   gkyl_wv_eqn_release(maxwell);
 }
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 
 int cu_wv_maxwell_test(const struct gkyl_wv_eqn *eqn);
 
@@ -209,7 +209,7 @@ test_cu_wv_maxwell()
 TEST_LIST = {
   { "maxwell_basic", test_maxwell_basic },
   { "maxwell_waves", test_maxwell_waves },
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   { "cu_wv_maxwell", test_cu_wv_maxwell },
 #endif  
   { NULL, NULL },

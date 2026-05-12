@@ -27,7 +27,7 @@ gkyl_vlasov_poisson_free(const struct gkyl_ref_count *ref)
 void
 gkyl_vlasov_poisson_set_auxfields(const struct gkyl_dg_eqn *eqn, struct gkyl_dg_vlasov_poisson_auxfields auxin)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_dg_eqn_is_cu_dev(eqn)) {
     gkyl_vlasov_poisson_set_auxfields_cu(eqn->on_dev, auxin);
     return;
@@ -44,7 +44,7 @@ gkyl_dg_vlasov_poisson_new(const struct gkyl_basis* cbasis, const struct gkyl_ba
   const struct gkyl_range* conf_range, const struct gkyl_range* phase_range,
   enum gkyl_model_id model_id, enum gkyl_field_id field_id, bool use_gpu)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (use_gpu) {
     return gkyl_dg_vlasov_poisson_cu_dev_new(cbasis, pbasis, conf_range, phase_range, model_id, field_id);
   } 

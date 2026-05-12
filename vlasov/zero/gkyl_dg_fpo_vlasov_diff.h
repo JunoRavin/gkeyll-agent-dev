@@ -36,7 +36,7 @@ struct gkyl_dg_eqn* gkyl_dg_fpo_vlasov_diff_cu_dev_new(const struct gkyl_basis* 
  */
 void gkyl_fpo_vlasov_diff_set_auxfields(const struct gkyl_dg_eqn *eqn, struct gkyl_dg_fpo_vlasov_diff_auxfields auxin);
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 
 /**
  * CUDA device function to set auxiliary fields needed in updating diff flux term (D = grad(grad(g)), g solved for externally).

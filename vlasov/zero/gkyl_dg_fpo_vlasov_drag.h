@@ -36,7 +36,7 @@ struct gkyl_dg_eqn* gkyl_dg_fpo_vlasov_drag_cu_dev_new(const struct gkyl_basis* 
  */
 void gkyl_fpo_vlasov_drag_set_auxfields(const struct gkyl_dg_eqn *eqn, struct gkyl_dg_fpo_vlasov_drag_auxfields auxin);
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 
 /**
  * CUDA device function to set auxiliary fields needed in updating drag flux term (a = grad(h), h solved for externally).

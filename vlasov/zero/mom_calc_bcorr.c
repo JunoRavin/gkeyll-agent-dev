@@ -14,7 +14,7 @@ struct gkyl_mom_calc_bcorr*
 gkyl_mom_calc_bcorr_new(const struct gkyl_rect_grid *grid, 
   const struct gkyl_mom_type *momt, bool use_gpu)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (use_gpu) {
     return gkyl_mom_calc_bcorr_cu_dev_new(grid, momt);
   } 
@@ -43,7 +43,7 @@ gkyl_mom_calc_bcorr_advance(const struct gkyl_mom_calc_bcorr *bcorr,
   const struct gkyl_range *phase_rng, const struct gkyl_range *conf_rng,
   const struct gkyl_array *GKYL_RESTRICT fIn, struct gkyl_array *GKYL_RESTRICT out)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (GKYL_IS_CU_ALLOC(bcorr->flags)) {
     gkyl_mom_calc_bcorr_advance_cu(bcorr, phase_rng, conf_rng, fIn, out);
     return;
@@ -137,7 +137,7 @@ gkyl_mom_calc_bcorr_release(gkyl_mom_calc_bcorr* up)
   gkyl_free(up);
 }
 
-#ifndef GKYL_HAVE_CUDA
+#ifndef GKYL_HAVE_GPU
 
 struct gkyl_mom_calc_bcorr*
 gkyl_mom_calc_bcorr_cu_dev_new(const struct gkyl_rect_grid *grid, const struct gkyl_mom_type *momt)

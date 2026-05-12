@@ -945,7 +945,7 @@ void test_1x_p2() { test(1, 8, 2, 1.0e-12, 0, 0, false); }
 void test_2x_tensor_p2() { test(2, 8, 2, 1.0e-12, 1, 0, false); }
 void test_3x_tensor_p2() { test(3, 8, 2, 1.0e-12, 1, 0, false); }
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 void test_1x_p1_gpu() { test(1, 8, 1, 1.0e-12, 0, 0, true); }
 void test_2x_p1_gpu() { test(2, 8, 1, 1.0e-12, 0, 0, true); }
 void test_3x_p1_gpu() { test(3, 8, 1, 1.0e-12, 0, 0, true); }
@@ -966,7 +966,7 @@ TEST_LIST = {
   // { "test_2x_tensor_p2", test_2x_tensor_p2 },
   // { "test_3x_tensor_p2", test_3x_tensor_p2 },
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   { "test_1x_p1_gpu", test_1x_p1_gpu },
   { "test_2x_p1_gpu", test_2x_p1_gpu },
   { "test_3x_p1_gpu", test_3x_p1_gpu },

@@ -21,7 +21,7 @@ mkarr(bool on_gpu, long nc, long size)
 void
 gkyl_velocity_map_free(const struct gkyl_ref_count *ref);
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 
 /**
  * Allocate a velocity map object with pointers to device memory

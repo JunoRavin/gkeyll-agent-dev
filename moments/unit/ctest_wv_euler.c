@@ -232,7 +232,7 @@ test_euler_waves_2(enum gkyl_wv_flux_type ftype, enum gkyl_wv_euler_rp rp_type)
   gkyl_wv_eqn_release(euler);
 }
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 
 int cu_wv_euler_test(const struct gkyl_wv_eqn *eqn);
 
@@ -299,7 +299,7 @@ TEST_LIST = {
   { "euler_waves_2_lo_lax", test_euler_waves_2_lo_lax },
   { "euler_waves_2_ho_hll", test_euler_waves_2_ho_hll },
   { "euler_waves_2_lo_hll", test_euler_waves_2_lo_hll },
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   { "cu_wv_euler", test_cu_wv_euler },
 #endif  
   { NULL, NULL },

@@ -83,7 +83,7 @@ main(int argc, char **argv)
 {
   struct kerntm_inp inp = get_inp(argc, argv);
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (inp.use_gpu)
     printf("Running kernel timers on GPU with:\n");
   else
@@ -151,7 +151,7 @@ main(int argc, char **argv)
   for (int i=0; i<inp.nloop; ++i)
     gkyl_vlasov_app_species_ktm_rhs(app, 1);
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   cudaDeviceSynchronize();
 #endif
   
@@ -162,7 +162,7 @@ main(int argc, char **argv)
   for (int i=0; i<inp.nloop; ++i)
     gkyl_vlasov_app_species_ktm_rhs(app, 0);
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   cudaDeviceSynchronize();
 #endif  
   

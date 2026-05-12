@@ -11,7 +11,7 @@ gkyl_prim_lbo_calc*
 gkyl_prim_lbo_calc_new(const struct gkyl_rect_grid *grid,
   struct gkyl_prim_lbo_type *prim, bool use_gpu)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (use_gpu) {
     return gkyl_prim_lbo_calc_cu_dev_new(grid, prim);
   } 
@@ -37,7 +37,7 @@ gkyl_prim_lbo_calc_advance(struct gkyl_prim_lbo_calc* calc,
   const struct gkyl_array *boundary_corrections, const struct gkyl_array *nu,
   struct gkyl_array *prim_moms_out)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (GKYL_IS_CU_ALLOC(calc->flags)) {
     gkyl_prim_lbo_calc_advance_cu(calc, conf_rng, moms, boundary_corrections, nu, prim_moms_out);
     return;
@@ -114,7 +114,7 @@ void gkyl_prim_lbo_calc_release(gkyl_prim_lbo_calc* up)
   gkyl_free(up);
 }
 
-#ifndef GKYL_HAVE_CUDA
+#ifndef GKYL_HAVE_GPU
 
 gkyl_prim_lbo_calc*
 gkyl_prim_lbo_calc_cu_dev_new(const struct gkyl_rect_grid *grid,

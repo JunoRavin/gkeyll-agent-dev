@@ -94,7 +94,7 @@ struct gkyl_positivity_shift_vlasov {
   struct gkyl_array *shiftedf; // Marks if a shift occured at a given conf-cell.
 };
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 // Declaration of cuda device functions.
 
 void
@@ -108,12 +108,19 @@ gkyl_positivity_shift_vlasov_advance_cu(gkyl_positivity_shift_vlasov* up,
   struct gkyl_array *GKYL_RESTRICT delta_m0);
 #endif
 
-GKYL_CU_D
+// Host-callable dispatcher that conditionally calls the GPU host-launcher
+// pos_shift_vlasov_choose_shift_kernel_cu when use_gpu=true. GKYL_CU_DH
+// (host AND device) lets this compile under hipcc's device pass even
+// though the device branch is unreachable at runtime — the GKYL_HAVE_GPU
+// gate is on use_gpu, not on a compile-time device flag, so the device
+// pass would otherwise hit a "no matching function" error trying to
+// resolve the host-only _cu launcher from device context.
+GKYL_CU_DH
 static void pos_shift_vlasov_choose_shift_kernel(struct gkyl_positivity_shift_vlasov_kernels *kernels,
   struct gkyl_basis cbasis, struct gkyl_basis pbasis, enum gkyl_positivity_shift_type stype,
   bool use_gpu)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (use_gpu) {
     pos_shift_vlasov_choose_shift_kernel_cu(kernels, cbasis, pbasis, stype);
     return;

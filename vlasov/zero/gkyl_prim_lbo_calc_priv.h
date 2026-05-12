@@ -15,7 +15,7 @@ struct gkyl_prim_lbo_calc {
   struct gkyl_prim_lbo_calc *on_dev; // pointer to itself or device data
 };
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 /**
  * Create new updater to compute primitive moments of distribution function on
  * NV-GPU. See new() method for documentation.

@@ -453,7 +453,7 @@ test_wv_geom_3d_2()
   gkyl_wave_geom_release(wg);
 }
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 
 int cu_wave_geom_test(const struct gkyl_wave_geom *wg);
 
@@ -494,7 +494,7 @@ TEST_LIST = {
   { "wv_geom_2d_3", test_wv_geom_2d_3 },
   { "wv_geom_3d_1", test_wv_geom_3d_1 },
   { "wv_geom_3d_2", test_wv_geom_3d_2 },
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   { "wv_geom_3d_cu", test_wv_geom_3d_cu },
 #endif
   { NULL, NULL },

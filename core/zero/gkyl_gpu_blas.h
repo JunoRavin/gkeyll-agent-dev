@@ -22,12 +22,29 @@
 //     through gkyl_mat_to_blas_op(), and never cast a gkyl_mat_trans
 //     directly.
 //
-// rocblas/rocsolver headers are extern "C"-guarded and C-includable on
-// ROCm 6.2.4 (verified). No extern "C++" wrap required here, unlike
-// gkyl_gpu_runtime.h which has to escape libstdc++ leakage from
+// rocblas/rocsolver headers must NOT be wrapped in extern "C": they
+// transitively pull rocblas_float8.h / rocblas_bfloat16.h /
+// rocblas_hip_f8_impl.h, which contain C++ templates and operator<<
+// overloads that error with "templates must have C++ linkage" if reached
+// inside an extern "C" block. The function declarations are extern "C"
+// guarded internally, so Gkeyll callers (which compile under hipcc as
+// C++) can still take their addresses with C linkage. This is unlike
+// gkyl_gpu_runtime.h which had to escape libstdc++ leakage from
 // <hip/hip_runtime.h>.
-
+//
+// gkyl_mat.h IS wrapped in extern "C" below: it's a Gkeyll header
+// without its own __cplusplus guard, so without the wrap a C++ TU
+// that includes this shim picks up `gkyl_mat_mm_array` etc. with
+// C++ name mangling, mismatching the C-name those functions are
+// defined with in mat.c (compiled by cc) — the resulting runtime
+// "undefined symbol _Z17gkyl_mat_mm_array..." was seen at V4 startup.
+#ifdef __cplusplus
+extern "C" {
+#endif
 #include <gkyl_mat.h> // for enum gkyl_mat_trans
+#ifdef __cplusplus
+}
+#endif
 
 #ifdef GKYL_HAVE_HIP
 

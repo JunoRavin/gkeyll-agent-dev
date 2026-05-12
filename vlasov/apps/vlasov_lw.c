@@ -25,7 +25,7 @@
 #ifdef GKYL_HAVE_MPI
 #include <mpi.h>
 #include <gkyl_mpi_comm.h>
-#ifdef GKYL_HAVE_NCCL
+#if defined(GKYL_HAVE_NCCL) || defined(GKYL_HAVE_RCCL)
 #include <gkyl_nccl_comm.h>
 #endif
 #endif
@@ -1531,7 +1531,7 @@ vm_parse_script_cli(struct gkyl_tool_args *acv)
 #ifdef GKYL_HAVE_MPI
   cli.use_mpi = true;
 #endif
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   cli.use_gpu = true;
 #endif
   
@@ -1983,7 +1983,7 @@ vm_app_new(lua_State *L)
 
 #ifdef GKYL_HAVE_MPI
   if (script_cli.use_gpu && script_cli.use_mpi) {
-#ifdef GKYL_HAVE_NCCL
+#if defined(GKYL_HAVE_NCCL) || defined(GKYL_HAVE_RCCL)
     with_lua_global(L, "GKYL_MPI_COMM") {
       if (lua_islightuserdata(L, -1)) {
         struct { MPI_Comm comm; } *lw_mpi_comm_world = lua_touserdata(L, -1);

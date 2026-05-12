@@ -18,7 +18,7 @@ gkyl_emission_spectrum_chung_everhart_new(double charge, double phi, bool use_gp
   GKYL_CLEAR_CU_ALLOC(model->spectrum.flags);
   model->spectrum.ref_count = gkyl_ref_count_init(gkyl_emission_spectrum_chung_everhart_free);
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if(use_gpu) {
     model->spectrum.on_dev = gkyl_emission_spectrum_chung_everhart_cu_dev_new(model, charge, phi);
   }
@@ -43,7 +43,7 @@ gkyl_emission_spectrum_gaussian_new(double charge, double E_0, double tau, bool 
   GKYL_CLEAR_CU_ALLOC(model->spectrum.flags);
   model->spectrum.ref_count = gkyl_ref_count_init(gkyl_emission_spectrum_gaussian_free);
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if(use_gpu) {
     model->spectrum.on_dev = gkyl_emission_spectrum_gaussian_cu_dev_new(model, charge, E_0, tau);
   }
@@ -67,7 +67,7 @@ gkyl_emission_spectrum_maxwellian_new(double charge, double vt, bool use_gpu)
   GKYL_CLEAR_CU_ALLOC(model->spectrum.flags);
   model->spectrum.ref_count = gkyl_ref_count_init(gkyl_emission_spectrum_maxwellian_free);
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if(use_gpu) {
     model->spectrum.on_dev = gkyl_emission_spectrum_maxwellian_cu_dev_new(model, charge, vt);
   }

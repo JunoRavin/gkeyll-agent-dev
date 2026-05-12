@@ -1,5 +1,5 @@
 #include <gkyl_canonical_pb_kernels.h> 
-void canonical_pb_fluid_subtract_zonal_2x_ser_p2(const double *phi_zonal, const double *n_zonal, double* GKYL_RESTRICT adiabatic_coupling_phi_n) 
+GKYL_CU_DH void canonical_pb_fluid_subtract_zonal_2x_ser_p2(const double *phi_zonal, const double *n_zonal, double* GKYL_RESTRICT adiabatic_coupling_phi_n) 
 { 
   // phi_zonal: 1/Ly int phi dy.
   // n_zonal: 1/Ly int n dy.

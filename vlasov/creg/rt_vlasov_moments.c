@@ -218,7 +218,7 @@ main(int argc, char **argv)
 {
   struct moment_inp inp = get_inp(argc, argv);
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (inp.use_gpu)
     printf("Running moment calculation on GPU with:\n");
   else

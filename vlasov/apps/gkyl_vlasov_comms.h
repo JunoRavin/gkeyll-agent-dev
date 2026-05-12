@@ -7,7 +7,7 @@
 #ifdef GKYL_HAVE_MPI
 #include <mpi.h>
 #include <gkyl_mpi_comm.h>
-#ifdef GKYL_HAVE_NCCL
+#if defined(GKYL_HAVE_NCCL) || defined(GKYL_HAVE_RCCL)
 #include <gkyl_nccl_comm.h>
 #endif
 #endif

@@ -266,7 +266,7 @@ void test_1x2v_dev()
 
 TEST_LIST = {
   { "test_1x2v_ho", test_1x2v_ho },
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   { "test_1x2v_dev", test_1x2v_dev },
 #endif
   { NULL, NULL },

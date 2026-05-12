@@ -864,7 +864,7 @@ static const gkyl_canonical_pb_mom_kern_list tensor_m1i_from_h_kernels[] = {
  */
 void gkyl_mom_can_pb_free(const struct gkyl_ref_count *ref);
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 /**
  * Create new canonical-pb moment type object on NV-GPU: 
  * see new() method above for documentation.

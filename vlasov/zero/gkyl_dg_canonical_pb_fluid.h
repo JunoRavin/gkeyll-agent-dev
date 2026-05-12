@@ -48,7 +48,7 @@ struct gkyl_dg_eqn* gkyl_dg_canonical_pb_fluid_cu_dev_new(const struct gkyl_basi
 void gkyl_canonical_pb_fluid_set_auxfields(const struct gkyl_dg_eqn *eqn, struct gkyl_dg_canonical_pb_fluid_auxfields auxin);
 
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 /**
  * CUDA device function to set auxiliary fields
  * 

@@ -35,7 +35,7 @@ struct gkyl_dg_eqn* gkyl_dg_diffusion_vlasov_new(const struct gkyl_basis *basis,
  */
 void gkyl_dg_diffusion_vlasov_set_auxfields(const struct gkyl_dg_eqn* eqn, struct gkyl_dg_diffusion_vlasov_auxfields auxin);
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 
 /**
  * CUDA device function to set auxiliary fields (e.g. diffusion tensor D) needed in updating diffusion equation.

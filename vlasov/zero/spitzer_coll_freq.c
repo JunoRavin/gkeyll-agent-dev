@@ -227,7 +227,7 @@ gkyl_spitzer_coll_freq_advance_normnu(const gkyl_spitzer_coll_freq *up,
   // Scale project normNu*n_r/(v_ts^2+v_tr^2)^(3/2) onto the basis using
   // quadrature.
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (up->use_gpu)
     return gkyl_spitzer_coll_freq_advance_normnu_cu(up, range, momsSelf, 
       vtSqMinSelf, momsOther, vtSqMinOther, normNu, nuOut);
@@ -268,7 +268,7 @@ gkyl_spitzer_coll_freq_advance(const gkyl_spitzer_coll_freq *up,
   //     * (1/(v_ts^2+v_tr^2)^(3/2))
   // where log(Lambda_sr) is the Coulomb logarithm (see Gkeyll docs).
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (up->use_gpu)
     return gkyl_spitzer_coll_freq_advance_cu(up, range, bmag, qSelf, mSelf, momsSelf,
       vtSqMinSelf, qOther, mOther, momsOther, vtSqMinOther, nuOut);

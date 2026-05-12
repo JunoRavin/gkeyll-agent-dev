@@ -14,6 +14,15 @@ extern "C" {
 #include <gkyl_util.h>
 }
 
+// Forward decl of direct-dispatch wrapper defined in dg_vlasov_cu.cu.
+// Used in place of the up->equation->vol_term fn-ptr for the 2x2v ser p2
+// case, which faults on AMD MI250X under -fgpu-rdc due to the indirect
+// call's scratch reserve being too small for this kernel's spill demand.
+extern "C" __device__ double
+gkyl_diag_vol_2x2v_ser_p2_direct(const struct gkyl_dg_eqn *eqn,
+  const double *xc, const double *dx, const int *idx,
+  const double *qIn, double *GKYL_RESTRICT qRhsOut);
+
 __global__ static void
 gkyl_hyper_dg_set_update_vol_cu_kernel(gkyl_hyper_dg *up, int update_vol_term)
 {
@@ -51,7 +60,7 @@ gkyl_hyper_dg_advance_cu_kernel(gkyl_hyper_dg* up, struct gkyl_range update_rang
       double *cflrate_d = (double*) gkyl_array_fetch(cflrate, linc);
       cflrate_d[0] += cflr; // frequencies are additive
     }
-    
+
     for (int d=0; d<up->num_up_dirs; ++d) {
       int dir = up->update_dirs[d];
       double cfls = 0.0;
@@ -79,7 +88,7 @@ gkyl_hyper_dg_advance_cu_kernel(gkyl_hyper_dg* up, struct gkyl_range update_rang
         idxr[dir] = idxr[dir]+1;
         gkyl_rect_grid_cell_center(&up->grid, idxl, xcl);
         gkyl_rect_grid_cell_center(&up->grid, idxr, xcr);
-        long linl = gkyl_range_idx(&update_range, idxl); 
+        long linl = gkyl_range_idx(&update_range, idxl);
         long linr = gkyl_range_idx(&update_range, idxr);
 
         cfls = up->equation->surf_term(up->equation,
@@ -90,7 +99,7 @@ gkyl_hyper_dg_advance_cu_kernel(gkyl_hyper_dg* up, struct gkyl_range update_rang
         );
       }
       double *cflrate_d = (double*) gkyl_array_fetch(cflrate, linc);
-      cflrate_d[0] += cfls; // frequencies are additive     
+      cflrate_d[0] += cfls; // frequencies are additive
     }
   }
 }

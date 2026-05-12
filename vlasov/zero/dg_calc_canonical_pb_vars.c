@@ -13,7 +13,7 @@ gkyl_dg_calc_canonical_pb_vars*
 gkyl_dg_calc_canonical_pb_vars_new(const struct gkyl_rect_grid *phase_grid, 
   const struct gkyl_basis *conf_basis, const struct gkyl_basis *phase_basis, bool use_gpu)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if(use_gpu) {
     return gkyl_dg_calc_canonical_pb_vars_cu_dev_new(phase_grid, 
       conf_basis, phase_basis);
@@ -51,7 +51,7 @@ void gkyl_dg_calc_canonical_pb_vars_alpha_surf(struct gkyl_dg_calc_canonical_pb_
   struct gkyl_array *hamil,
   struct gkyl_array* alpha_surf, struct gkyl_array* sgn_alpha_surf, struct gkyl_array* const_sgn_alpha)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_array_is_cu_dev(alpha_surf)) {
     return gkyl_dg_calc_canonical_pb_vars_alpha_surf_cu(up, conf_range, phase_range, phase_ext_range, hamil, 
       alpha_surf, sgn_alpha_surf, const_sgn_alpha);
@@ -114,7 +114,7 @@ void gkyl_canonical_pb_contra_to_covariant_m1i(struct gkyl_dg_calc_canonical_pb_
  const struct gkyl_array *h_ij, const struct gkyl_array *V_drift, const struct gkyl_array *M1i,
   struct gkyl_array *V_drift_cov, struct gkyl_array *M1i_cov)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_array_is_cu_dev(V_drift_cov)) {
     return gkyl_canonical_pb_contra_to_covariant_m1i_cu(up, conf_range, h_ij, V_drift, M1i, V_drift_cov, M1i_cov);
   }
@@ -141,7 +141,7 @@ void gkyl_canonical_pb_pressure(struct gkyl_dg_calc_canonical_pb_vars *up, const
  const struct gkyl_array *MEnergy, const struct gkyl_array *V_drift, const struct gkyl_array *M1i,
  struct gkyl_array *pressure)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_array_is_cu_dev(pressure)) {
     return gkyl_canonical_pb_pressure_cu(up, conf_range, h_ij_inv, MEnergy, V_drift, M1i, pressure);
   }

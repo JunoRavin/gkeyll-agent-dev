@@ -1,6 +1,15 @@
 /* -*- c++ -*- */
-#include <cuda_runtime.h>
-#include <cublas_v2.h>
+// gkyl_gpu_runtime.h and gkyl_gpu_blas.h must live OUTSIDE extern "C":
+//   * gkyl_gpu_runtime.h's <hip/hip_runtime.h> transitively pulls libstdc++
+//     headers (needs C++ linkage; the shim itself re-opens extern "C++").
+//   * gkyl_gpu_blas.h pulls <rocblas/rocblas.h> which transitively pulls
+//     rocblas_float8.h / rocblas_bfloat16.h / rocblas_hip_f8_impl.h —
+//     these have C++ templates and operator<< overloads that error out
+//     if reached from extern "C" scope ("templates must have C++ linkage").
+// gkyl_gpu_blas.h handles the C-linkage requirement of its <gkyl_mat.h>
+// transitive include itself (extern "C" wrap inside the shim).
+#include <gkyl_gpu_runtime.h>
+#include <gkyl_gpu_blas.h>
 
 extern "C" {
 #include <gkyl_alloc.h>

@@ -33,7 +33,7 @@ gkyl_prim_cross_m0deltas_advance(gkyl_prim_cross_m0deltas *up,
   double massother, const struct gkyl_array* m0other, const struct gkyl_array* nuother,
   struct gkyl_array* out)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (up->use_gpu)
     return gkyl_prim_cross_m0deltas_advance_cu(up, massself, m0self, nuself,
       massother, m0other, nuother, out);

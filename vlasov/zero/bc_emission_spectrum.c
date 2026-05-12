@@ -48,7 +48,7 @@ void
 gkyl_bc_emission_spectrum_sey_calc(const struct gkyl_bc_emission_spectrum *up,
   struct gkyl_array *yield, struct gkyl_rect_grid *grid, const struct gkyl_range *impact_buff_r)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (up->use_gpu) {
     gkyl_bc_emission_spectrum_sey_calc_cu(up, yield, grid, impact_buff_r);
     return;
@@ -104,7 +104,7 @@ gkyl_bc_emission_spectrum_new(struct gkyl_emission_spectrum_model *spectrum_mode
   gkyl_proj_on_basis *proj = gkyl_proj_on_basis_new(emit_grid, basis, poly_order + 1, 1,
       up->spectrum_model->distribution, up->spectrum_model);
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (use_gpu) {
     gkyl_bc_emission_spectrum_set_extern_params_cu(up, cdim, vdim, mass_in, mass_out);
     gkyl_proj_on_basis_advance(proj, 0.0, emit_buff_r, proj_buffer);
@@ -138,7 +138,7 @@ gkyl_bc_emission_spectrum_advance(const struct gkyl_bc_emission_spectrum *up,
   struct gkyl_array *yield, struct gkyl_array *spectrum, struct gkyl_array *weight,
   struct gkyl_array *flux, struct gkyl_array *k)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (up->use_gpu) {
     return gkyl_bc_emission_spectrum_advance_cu(up, impact_buff_r, impact_cbuff_r, emit_buff_r,
       bflux, f_emit, yield, spectrum, weight, flux, k);

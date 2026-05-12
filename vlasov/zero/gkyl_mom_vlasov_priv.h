@@ -267,7 +267,7 @@ kernel(const struct gkyl_mom_type *momt, const double *xc, const double *dx,
   return mom_vlasov->kernel(xc, dx, idx, f, out);
 }
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 /**
  * Create new Vlasov moment type object on NV-GPU: 
  * see new() method above for documentation.

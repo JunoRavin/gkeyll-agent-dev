@@ -39,7 +39,7 @@ gkyl_wv_ten_moment_inew(const struct gkyl_wv_ten_moment_inp *inp)
   kann_t* ann = inp->ann;
   bool use_gpu = inp->use_gpu;
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (use_gpu) {
     return gkyl_wv_ten_moment_cu_dev_new(k0, use_grad_closure, use_nn_closure, poly_order, ann, use_gpu);
   } 

@@ -37,12 +37,15 @@ export ROCFFT_RTC_CACHE_PATH=/dev/null
 ./configure CC=cc GPUCXX=hipcc GPU_ARCH=gfx90a \
     ROCM_PATH=$ROCM_PATH \
     --prefix=$PREFIX \
-    --app=core \
+    --app=vlasov \
     --use-hip=yes --use-mpi=yes \
     --use-nccl=no --use-rccl=yes \
     --rccl-inc=$ROCM_PATH/include \
     --rccl-lib=$ROCM_PATH/lib \
     --use-cudss=no \
+    --use-lua=yes \
+    --lua-inc=$PREFIX/luajit/include/luajit-2.1 \
+    --lua-lib=$PREFIX/luajit/lib \
     --lapack-lib-name=sci_amd \
     --lapack-inc=$CRAY_LIBSCI_PREFIX/include \
     --lapack-lib=$CRAY_LIBSCI_PREFIX/lib \

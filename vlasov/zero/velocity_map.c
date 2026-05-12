@@ -29,7 +29,7 @@ gkyl_velocity_map_free(const struct gkyl_ref_count *ref)
 {
   struct gkyl_velocity_map *gvm = container_of(ref, struct gkyl_velocity_map, ref_count);
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_velocity_map_is_cu_dev(gvm))
     gkyl_cart_modal_basis_release_cu(gvm->vmap_basis);
   else
@@ -162,7 +162,7 @@ gkyl_velocity_map_new(struct gkyl_mapc2p_inp mapc2p_in,
   gvm->on_dev = gvm; // CPU eqn gvm points to itself
 
   struct gkyl_velocity_map *gvm_out = gvm;
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (use_gpu) {
     gvm_out = gkyl_velocity_map_new_cu_dev(gvm);
     gkyl_velocity_map_release(gvm);

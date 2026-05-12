@@ -30,7 +30,7 @@ struct gkyl_dg_eqn*
 gkyl_dg_maxwell_new(const struct gkyl_basis* cbasis,
   double lightSpeed, double elcErrorSpeedFactor, double mgnErrorSpeedFactor, bool use_gpu)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if(use_gpu) {
     return gkyl_dg_maxwell_cu_dev_new(cbasis, lightSpeed, elcErrorSpeedFactor, mgnErrorSpeedFactor);
   } 
@@ -92,7 +92,7 @@ gkyl_dg_maxwell_new(const struct gkyl_basis* cbasis,
   return &maxwell->eqn;
 }
 
-#ifndef GKYL_HAVE_CUDA
+#ifndef GKYL_HAVE_GPU
 
 struct gkyl_dg_eqn*
 gkyl_dg_maxwell_cu_dev_new(const struct gkyl_basis* cbasis,

@@ -20,6 +20,15 @@ ifdef USING_NVCC
 	SRCS += $(shell find $(SRC_DIRS) -name *.cu)
 	SRCS += $(shell find $(UNIT_DIRS) -name *.cu)
 endif
+ifdef USING_HIPCC
+	# Mirror of core / moments USING_HIPCC SRCS arm. No vlasov _cu.cu file
+	# reaches into gkyl_culinsolver_* (the cuSolver/cuDSS sparse LU wrappers
+	# that are CUDA-only per amd_port_plan.md §7), so no HIP_DEFER filter
+	# is needed here — all 45 vlasov/zero/_cu.cu files compile under hipcc
+	# via the core shims.
+	SRCS += $(shell find $(SRC_DIRS) -name *.cu)
+	SRCS += $(shell find $(UNIT_DIRS) -name *.cu)
+endif
 OBJS := $(SRCS:%=../$(BUILD_DIR)/vlasov/%.o)
 
 DEPS := $(OBJS:.o=.d)
@@ -32,7 +41,11 @@ LUA_UNITS := $(patsubst %.c,../${BUILD_DIR}/vlasov/%,$(wildcard unit/lctest_*.c)
 UNIT_CU_SRCS =
 UNIT_CU_OBJS =
 ifdef USING_NVCC
-    UNIT_CU_SRCS = 
+    UNIT_CU_SRCS =
+    UNIT_CU_OBJS = $(UNIT_CU_SRCS:%=../$(BUILD_DIR)/vlasov/%.o)
+endif
+ifdef USING_HIPCC
+    UNIT_CU_SRCS =
     UNIT_CU_OBJS = $(UNIT_CU_SRCS:%=../$(BUILD_DIR)/vlasov/%.o)
 endif
 
@@ -40,14 +53,14 @@ REGS := $(patsubst %.c,../${BUILD_DIR}/vlasov/%,$(wildcard creg/rt_*.c))
 
 KERN_INC_DIRS = $(shell find $(KERNELS_DIR) -type d)
 KERN_INCLUDES = $(addprefix -I,$(KERN_INC_DIRS))
-EXT_INCS := -I${MPI_INC_DIR} -I${NCCL_INC_DIR} -I${CUDSS_INC_DIR} -I${LUA_INC_DIR} -I${LAPACK_INC_DIR} -I${SUPERLU_INC_DIR}
+EXT_INCS := -I${MPI_INC_DIR} -I${NCCL_INC_DIR} -I${RCCL_INC_DIR} -I${CUDSS_INC_DIR} -I${LUA_INC_DIR} -I${LAPACK_INC_DIR} -I${SUPERLU_INC_DIR}
 INCS := ${EXT_INCS} ${CORE_INCS} ${MOMENTS_INCS} -I$(KERNELS_DIR) -Izero -Iapps -Icreg $(KERN_INCLUDES)
 
 CORE_LIB_DIR := -L../${BUILD_DIR}/core
 CORE_LIB := -lg0core
 
-EXEC_LIB_DIRS = -L${LAPACK_LIB_DIR} -L${SUPERLU_LIB_DIR} -L${MPI_LIB_DIR} -L${NCCL_LIB_DIR} -L${CUDSS_LIB_DIR} -L${LUA_LIB_DIR}
-EXEC_EXT_LIBS = ${LAPACK_LIBS} ${SUPERLU_LIBS} ${CUDA_LIBS} ${MPI_RPATH} ${MPI_LIBS} ${NCCL_LIBS} ${CUDSS_RPATH} ${CUDSS_LIBS} ${LUA_RPATH} ${LUA_LIBS} -lm -lpthread -ldl
+EXEC_LIB_DIRS = -L${LAPACK_LIB_DIR} -L${SUPERLU_LIB_DIR} -L${MPI_LIB_DIR} -L${NCCL_LIB_DIR} -L${RCCL_LIB_DIR} -L${CUDSS_LIB_DIR} -L${LUA_LIB_DIR}
+EXEC_EXT_LIBS = ${LAPACK_LIBS} ${SUPERLU_LIBS} ${GPU_LIBS} ${MPI_RPATH} ${MPI_LIBS} ${NCCL_LIBS} ${RCCL_LIBS} ${CUDSS_RPATH} ${CUDSS_LIBS} ${LUA_RPATH} ${LUA_LIBS} -lm -lpthread -ldl
 EXEC_LIBS = -L../${BUILD_DIR}/vlasov ${LLIB} ${SLLIB} ${EXEC_EXT_LIBS}
 
 LDFLAGS += -Wl,-rpath,./${BUILD_DIR}/core
@@ -70,10 +83,12 @@ all: $(LLIB) $(SLLIB) ## Build all targets
 	$(MKDIR_P) $(dir $@)
 	$(CC) -c $(CFLAGS) $(ARCH_FLAGS) $(INCS) $< -o $@
 
-# Build commands for CUDA source                                                                                                                                                     
+# Build commands for CUDA / HIP device source. On the CUDA path GPUCXX==CC==nvcc
+# and GPU_FLAGS==NVCC_FLAGS (no-op rename); on the HIP path GPUCXX==hipcc and
+# GPU_FLAGS carries -x hip --offload-arch + -fgpu-rdc.
 ../$(BUILD_DIR)/vlasov/%.cu.o: %.cu
 	$(MKDIR_P) $(dir $@)
-	$(CC) -c $(CFLAGS) $(NVCC_FLAGS) $(INCS) $< -o $@
+	$(GPUCXX) -c $(CFLAGS) $(GPU_FLAGS) $(INCS) $< -o $@
 
 # Unit tests
 $(UNITS): ../${BUILD_DIR}/vlasov/unit/%: unit/%.c $(LLIB) $(SLLIB)
@@ -90,58 +105,63 @@ $(REGS): ../${BUILD_DIR}/vlasov/creg/%: creg/%.c $(LLIB) $(SLLIB)
 	$(MKDIR_P) ../${BUILD_DIR}/vlasov/creg
 	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $< -I. $(INCS) ${EXEC_LIB_DIRS} ${EXEC_LIBS}
 
-ifdef USING_NVCC
+# Kernel-override: every vlasov kernel .c file has GKYL_CU_DH-annotated
+# device functions and must be compiled by the GPU compiler so the device
+# side can pull them in via relocatable device code. On the NVCC path
+# GPUCXX==CC==nvcc and GPU_FLAGS==NVCC_FLAGS (no-op rename); on the HIP
+# path GPUCXX==hipcc and GPU_FLAGS carries -x hip --offload-arch + -fgpu-rdc.
+ifneq (,$(USING_NVCC)$(USING_HIPCC))
 ../$(BUILD_DIR)/vlasov/$(KERNELS_DIR)/advection/%.c.o : $(KERNELS_DIR)/advection/%.c
 	$(MKDIR_P) $(dir $@)
-	$(CC) $(CFLAGS) $(NVCC_FLAGS) $(INCS) -c $< -o $@
+	$(GPUCXX) $(CFLAGS) $(GPU_FLAGS) $(INCS) -c $< -o $@
 
 ../$(BUILD_DIR)/vlasov/$(KERNELS_DIR)/canonical_pb/%.c.o : $(KERNELS_DIR)/canonical_pb/%.c
 	$(MKDIR_P) $(dir $@)
-	$(CC) $(CFLAGS) $(NVCC_FLAGS) $(INCS) -c $< -o $@
+	$(GPUCXX) $(CFLAGS) $(GPU_FLAGS) $(INCS) -c $< -o $@
 
 ../$(BUILD_DIR)/vlasov/$(KERNELS_DIR)/dg_diffusion_fluid/%.c.o : $(KERNELS_DIR)/dg_diffusion_fluid/%.c
 	$(MKDIR_P) $(dir $@)
-	$(CC) $(CFLAGS) $(NVCC_FLAGS) $(INCS) -c $< -o $@
+	$(GPUCXX) $(CFLAGS) $(GPU_FLAGS) $(INCS) -c $< -o $@
 
 ../$(BUILD_DIR)/vlasov/$(KERNELS_DIR)/dg_diffusion_gen/%.c.o : $(KERNELS_DIR)/dg_diffusion_gen/%.c
 	$(MKDIR_P) $(dir $@)
-	$(CC) $(CFLAGS) $(NVCC_FLAGS) $(INCS) -c $< -o $@
+	$(GPUCXX) $(CFLAGS) $(GPU_FLAGS) $(INCS) -c $< -o $@
 
 ../$(BUILD_DIR)/vlasov/$(KERNELS_DIR)/dg_diffusion_vlasov/%.c.o : $(KERNELS_DIR)/dg_diffusion_vlasov/%.c
 	$(MKDIR_P) $(dir $@)
-	$(CC) $(CFLAGS) $(NVCC_FLAGS) $(INCS) -c $< -o $@
+	$(GPUCXX) $(CFLAGS) $(GPU_FLAGS) $(INCS) -c $< -o $@
 
 ../$(BUILD_DIR)/vlasov/$(KERNELS_DIR)/euler/%.c.o : $(KERNELS_DIR)/euler/%.c
 	$(MKDIR_P) $(dir $@)
-	$(CC) $(CFLAGS) $(NVCC_FLAGS) $(INCS) -c $< -o $@
+	$(GPUCXX) $(CFLAGS) $(GPU_FLAGS) $(INCS) -c $< -o $@
 
 ../$(BUILD_DIR)/vlasov/$(KERNELS_DIR)/fpo/%.c.o : $(KERNELS_DIR)/fpo/%.c
 	$(MKDIR_P) $(dir $@)
-	$(CC) $(CFLAGS) $(NVCC_FLAGS) $(INCS) -c $< -o $@
+	$(GPUCXX) $(CFLAGS) $(GPU_FLAGS) $(INCS) -c $< -o $@
 
 ../$(BUILD_DIR)/vlasov/$(KERNELS_DIR)/lbo_vlasov/%.c.o : $(KERNELS_DIR)/lbo_vlasov/%.c
 	$(MKDIR_P) $(dir $@)
-	$(CC) $(CFLAGS) $(NVCC_FLAGS) $(INCS) -c $< -o $@
+	$(GPUCXX) $(CFLAGS) $(GPU_FLAGS) $(INCS) -c $< -o $@
 
 ../$(BUILD_DIR)/vlasov/$(KERNELS_DIR)/maxwell/%.c.o : $(KERNELS_DIR)/maxwell/%.c
 	$(MKDIR_P) $(dir $@)
-	$(CC) $(CFLAGS) $(NVCC_FLAGS) $(INCS) -c $< -o $@
+	$(GPUCXX) $(CFLAGS) $(GPU_FLAGS) $(INCS) -c $< -o $@
 
 ../$(BUILD_DIR)/vlasov/$(KERNELS_DIR)/sr_vlasov/%.c.o : $(KERNELS_DIR)/sr_vlasov/%.c
 	$(MKDIR_P) $(dir $@)
-	$(CC) $(CFLAGS) $(NVCC_FLAGS) $(INCS) -c $< -o $@
+	$(GPUCXX) $(CFLAGS) $(GPU_FLAGS) $(INCS) -c $< -o $@
 
 ../$(BUILD_DIR)/vlasov/$(KERNELS_DIR)/vlasov/%.c.o : $(KERNELS_DIR)/vlasov/%.c
 	$(MKDIR_P) $(dir $@)
-	$(CC) $(CFLAGS) $(NVCC_FLAGS) $(INCS) -c $< -o $@
+	$(GPUCXX) $(CFLAGS) $(GPU_FLAGS) $(INCS) -c $< -o $@
 
 ../$(BUILD_DIR)/vlasov/$(KERNELS_DIR)/vlasov_poisson/%.c.o : $(KERNELS_DIR)/vlasov_poisson/%.c
 	$(MKDIR_P) $(dir $@)
-	$(CC) $(CFLAGS) $(NVCC_FLAGS) $(INCS) -c $< -o $@
+	$(GPUCXX) $(CFLAGS) $(GPU_FLAGS) $(INCS) -c $< -o $@
 
 ../$(BUILD_DIR)/vlasov/$(KERNELS_DIR)/positivity_shift_vlasov/%.c.o : $(KERNELS_DIR)/positivity_shift_vlasov/%.c
 	$(MKDIR_P) $(dir $@)
-	$(CC) $(CFLAGS) $(NVCC_FLAGS) $(INCS) -c $< -o $@
+	$(GPUCXX) $(CFLAGS) $(GPU_FLAGS) $(INCS) -c $< -o $@
 endif
 
 # build lib
@@ -150,6 +170,14 @@ $(LLIB): $(OBJS) ../$(BUILD_DIR)/moments/libg0moments.so
 ifeq ($(UNAME),Linux)
 ifdef USING_NVCC
 	$(CC) -shared -o $@ ${CORE_LINK_OBJS} ${MOMENTS_LINK_OBJS} ${VLASOV_LINK_OBJS} ${VLASOV_CU_LINK_OBJS}  -Xlinker=-soname -Xlinker=libg0vlasov.so -L${LAPACK_LIB_DIR} -L${SUPERLU_LIB_DIR} -L${MPI_LIB_DIR} -L${NCCL_LIB_DIR} -L${CUDSS_LIB_DIR} -L${LUA_LIB_DIR} ${LAPACK_LIBS} ${SUPERLU_LIBS} ${CUDA_LIBS} ${MPI_RPATH} ${MPI_LIBS} ${NCCL_LIBS} ${CUDSS_RPATH} ${CUDSS_LIBS} ${LUA_RPATH} ${LUA_LIBS} -lm -lpthread -ldl -arch=sm_${CUDA_ARCH} -rdc=true --compiler-options="-fPIC"
+else ifdef USING_HIPCC
+	# hipcc drives the link so -fgpu-rdc relocatable device code resolves.
+	# Mirror of core/Makefile-core's HIPCC arm. CORE_LINK_OBJS pulls
+	# unresolved core device symbols, MOMENTS_LINK_OBJS pulls moments
+	# device symbols (incl. wave-equation _cu.cu.o), and VLASOV_LINK_OBJS
+	# pulls all 45 vlasov/zero/_cu.cu.o + 13 vlasov/ker/*/*.c.o (compiled
+	# under -x hip via the kernel-override block above).
+	$(GPUCXX) -shared $(GPU_LDFLAGS) -fPIC -o $@ ${CORE_LINK_OBJS} ${MOMENTS_LINK_OBJS} ${VLASOV_LINK_OBJS} ${VLASOV_CU_LINK_OBJS} -Wl,-soname,libg0vlasov.so -L${LAPACK_LIB_DIR} -L${SUPERLU_LIB_DIR} -L${MPI_LIB_DIR} -L${NCCL_LIB_DIR} -L${RCCL_LIB_DIR} -L${LUA_LIB_DIR} ${LAPACK_LIBS} ${SUPERLU_LIBS} ${MPI_RPATH} ${GPU_LIBS} ${MPI_LIBS} ${NCCL_LIBS} ${RCCL_LIBS} ${LUA_RPATH} ${LUA_LIBS} -lm -lpthread -ldl
 else
 	$(CC) -shared -o $@ ${CORE_LINK_OBJS} ${MOMENTS_LINK_OBJS} ${VLASOV_LINK_OBJS} -Wl,-soname,libg0vlasov.so -L${LAPACK_LIB_DIR} -L${SUPERLU_LIB_DIR} -L${MPI_LIB_DIR} -L${NCCL_LIB_DIR} -L${CUDSS_LIB_DIR} -L${LUA_LIB_DIR} ${LAPACK_LIBS} ${SUPERLU_LIBS} ${CUDA_LIBS} ${MPI_RPATH} ${MPI_LIBS} ${NCCL_LIBS} ${CUDSS_RPATH} ${CUDSS_LIBS} ${LUA_RPATH} ${LUA_LIBS} -lm -lpthread -ldl
 endif

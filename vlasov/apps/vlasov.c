@@ -110,7 +110,7 @@ gkyl_vlasov_app_new(struct gkyl_vm *vm)
   double cfl_frac = vm->cfl_frac == 0 ? 1.0 : vm->cfl_frac;
   app->cfl = cfl_frac;
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   app->use_gpu = vm->parallelism.use_gpu;
 #else
   app->use_gpu = false; // can't use GPUs if we don't have them!

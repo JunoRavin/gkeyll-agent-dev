@@ -674,7 +674,7 @@ test_2x3v_p1()
   gkyl_array_release(distf);
 }
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 int cu_mom_vlasov_test(const struct gkyl_mom_type *mom);
 
 void
@@ -1315,7 +1315,7 @@ TEST_LIST = {
   { "test_2x2v_p1", test_2x2v_p1 },
 //  { "test_big_2x2v_p2", test_big_2x2v_p2 },  
   { "test_2x3v_p1", test_2x3v_p1 },
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   { "cu_mom_vlasov", test_cu_mom_vlasov },
   { "test_1x1v_p1_cu", test_1x1v_p1_cu },
   { "test_1x2v_p1_cu", test_1x2v_p1_cu },

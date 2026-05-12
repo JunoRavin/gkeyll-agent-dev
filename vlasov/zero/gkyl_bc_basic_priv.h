@@ -18,7 +18,7 @@ struct gkyl_bc_basic {
   bool use_gpu;
 };
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 
 /**
  * CUDA device function to set up function to apply boundary conditions.

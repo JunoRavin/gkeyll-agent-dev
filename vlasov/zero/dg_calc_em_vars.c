@@ -15,7 +15,7 @@ gkyl_dg_calc_em_vars_new(const struct gkyl_rect_grid *conf_grid,
   const struct gkyl_wv_eqn *wv_eqn, const struct gkyl_wave_geom *geom, 
   double limiter_fac, bool is_ExB, bool use_gpu)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if(use_gpu) {
     return gkyl_dg_calc_em_vars_cu_dev_new(conf_grid, cbasis, 
       mem_range, wv_eqn, geom, limiter_fac, is_ExB);
@@ -86,7 +86,7 @@ void gkyl_dg_calc_em_vars_advance(struct gkyl_dg_calc_em_vars *up,
   const struct gkyl_array* em, struct gkyl_array* cell_avg_magB2, 
   struct gkyl_array* out, struct gkyl_array* out_surf)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_array_is_cu_dev(out)) {
     return gkyl_dg_calc_em_vars_advance_cu(up, em, cell_avg_magB2, out, out_surf);
   }
@@ -133,7 +133,7 @@ void gkyl_dg_calc_em_vars_div_b(struct gkyl_dg_calc_em_vars *up, const struct gk
   const struct gkyl_array* bvar_surf, const struct gkyl_array* bvar, 
   struct gkyl_array* max_b, struct gkyl_array* div_b)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_array_is_cu_dev(div_b)) {
     return gkyl_dg_calc_em_vars_div_b_cu(up, conf_range, bvar_surf, bvar, max_b, div_b);
   }
@@ -175,7 +175,7 @@ void gkyl_dg_calc_em_vars_div_b(struct gkyl_dg_calc_em_vars *up, const struct gk
 void gkyl_dg_calc_em_vars_limiter(struct gkyl_dg_calc_em_vars *up, 
   const struct gkyl_range *conf_range, struct gkyl_array* em)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_array_is_cu_dev(em)) {
     return gkyl_dg_calc_em_vars_limiter_cu(up, conf_range, em);
   }

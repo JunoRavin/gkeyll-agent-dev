@@ -29,7 +29,7 @@ gkyl_fpo_vlasov_diff_free(const struct gkyl_ref_count* ref)
 void
 gkyl_fpo_vlasov_diff_set_auxfields(const struct gkyl_dg_eqn* eqn, struct gkyl_dg_fpo_vlasov_diff_auxfields auxin)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_array_is_cu_dev(auxin.g)) {
     gkyl_fpo_vlasov_diff_set_auxfields_cu(eqn->on_dev, auxin);
     return;
@@ -43,7 +43,7 @@ gkyl_fpo_vlasov_diff_set_auxfields(const struct gkyl_dg_eqn* eqn, struct gkyl_dg
 struct gkyl_dg_eqn*
 gkyl_dg_fpo_vlasov_diff_new(const struct gkyl_basis* pbasis, const struct gkyl_range* phase_range, bool use_gpu)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if(use_gpu)
     return gkyl_dg_fpo_vlasov_diff_cu_dev_new(pbasis, phase_range);
 #endif
@@ -153,7 +153,7 @@ gkyl_dg_fpo_vlasov_diff_new(const struct gkyl_basis* pbasis, const struct gkyl_r
   return &fpo_vlasov_diff->eqn;
 }
 
-#ifndef GKYL_HAVE_CUDA
+#ifndef GKYL_HAVE_GPU
 
 struct gkyl_dg_eqn*
 gkyl_dg_fpo_vlasov_diff_cu_dev_new(const struct gkyl_basis* pbasis, const struct gkyl_range* phase_range)

@@ -452,11 +452,13 @@ pkpm-check: pkpm ## Run unit tests in PKPM
 pkpm-valcheck: pkpm ## Run valgrind on unit tests in PKPM
 	cd pkpm && $(MAKE) -f Makefile-pkpm valcheck
 
-## Top-level Gkeyll target
-gkeyll: pkpm ## Build Gkeyll executable
+## Top-level Gkeyll target. Build-time dep on the configured app
+## (BUILD_APP, set by configure --app=...) rather than hardcoded pkpm so
+## --app=vlasov / --app=moments / --app=gyrokinetic builds work too.
+gkeyll: ${BUILD_APP} ## Build Gkeyll executable
 	cd gkeyll && ${MAKE} -f Makefile-gkeyll gkeyll
 
-gkeyll-install: pkpm-install gkeyll ## Install Gkeyll executable
+gkeyll-install: ${BUILD_APP}-install gkeyll ## Install Gkeyll executable
 	cd gkeyll && ${MAKE} -f Makefile-gkeyll install
 
 ## Targets to build things all parts of the code

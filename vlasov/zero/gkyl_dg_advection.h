@@ -38,7 +38,7 @@ struct gkyl_dg_eqn* gkyl_dg_advection_cu_dev_new(const struct gkyl_basis* cbasis
  */
 void gkyl_advection_set_auxfields(const struct gkyl_dg_eqn *eqn, struct gkyl_dg_advection_auxfields auxin);
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 
 /**
  * CUDA device function to set auxiliary fields (e.g. advection velocity u) needed in updating advection equation.

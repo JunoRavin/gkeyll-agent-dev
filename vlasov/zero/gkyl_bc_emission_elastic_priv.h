@@ -44,7 +44,7 @@ void
 gkyl_bc_emission_elastic_set_extern_params_cu(const struct gkyl_bc_emission_elastic *up,
   int cdim, int vdim, double mass);
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 
 /**
  * CUDA device function to set up function to apply boundary conditions.

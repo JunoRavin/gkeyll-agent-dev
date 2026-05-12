@@ -20,7 +20,7 @@ struct gkyl_hyper_dg {
   bool use_gpu; // Whether to run on the gpu.
 };
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 
 /**
  * Create new updater on CUDA device to update equations using DG algorithm.

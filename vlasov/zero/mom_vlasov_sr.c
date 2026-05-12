@@ -20,7 +20,7 @@ gkyl_mom_vm_sr_free(const struct gkyl_ref_count *ref)
 void
 gkyl_mom_vlasov_sr_set_auxfields(const struct gkyl_mom_type *momt, struct gkyl_mom_vlasov_sr_auxfields auxin)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_mom_type_is_cu_dev(momt)) {
     gkyl_mom_vlasov_sr_set_auxfields_cu(momt->on_dev, auxin);
     return;
@@ -38,7 +38,7 @@ gkyl_mom_vlasov_sr_new(const struct gkyl_basis* cbasis, const struct gkyl_basis*
 {
   assert(cbasis->poly_order == pbasis->poly_order);
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if(use_gpu) {
     return gkyl_mom_vlasov_sr_cu_dev_new(cbasis, pbasis, conf_range, vel_range, mom_type);
   } 
@@ -140,7 +140,7 @@ gkyl_int_mom_vlasov_sr_new(const struct gkyl_basis* cbasis, const struct gkyl_ba
 {
   assert(cbasis->poly_order == pbasis->poly_order);
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (use_gpu) {
     return gkyl_int_mom_vlasov_sr_cu_dev_new(cbasis, pbasis, conf_range, vel_range, mom_type);
   } 

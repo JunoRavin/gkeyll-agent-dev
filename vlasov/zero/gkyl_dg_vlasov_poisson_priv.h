@@ -919,7 +919,7 @@ boundary_surf(const struct gkyl_dg_eqn *eqn,
   return 0.;
 }
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 /**
  * Create a new Vlasov equation object that lives on NV-GPU
  *

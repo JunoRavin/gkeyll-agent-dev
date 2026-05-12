@@ -24,7 +24,7 @@ gkyl_euler_free(const struct gkyl_ref_count *ref)
 struct gkyl_wv_eqn*
 gkyl_wv_euler_inew(const struct gkyl_wv_euler_inp *inp)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if(inp->use_gpu) {
     return gkyl_wv_euler_cu_dev_inew(inp);
   } 

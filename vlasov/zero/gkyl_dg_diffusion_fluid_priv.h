@@ -1637,7 +1637,7 @@ GKYL_CU_D static double boundary_surf(const struct gkyl_dg_eqn* eqn, int dir,
  */
 void gkyl_dg_diffusion_fluid_free(const struct gkyl_ref_count* ref);
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 /**
  * Create a new diffusion equation object on the device.
  *

@@ -21,7 +21,7 @@
 static struct gkyl_array*
 mkarr(bool use_gpu, long nc, long size)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   struct gkyl_array* a = use_gpu? gkyl_array_cu_dev_new(GKYL_DOUBLE, nc, size)
                                 : gkyl_array_new(GKYL_DOUBLE, nc, size);
 #else
@@ -227,7 +227,7 @@ test_vmap_1x2v_p1_ho()
   test_vmap_1x2v_p1(false);
 }
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 void
 test_vmap_1x2v_p1_dev()
 {
@@ -238,7 +238,7 @@ test_vmap_1x2v_p1_dev()
 TEST_LIST = {
   { "test_vmap_1x2v_p1_ho", test_vmap_1x2v_p1_ho},
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   { "test_vmap_1x2v_p1_dev", test_vmap_1x2v_p1_dev},
 #endif
   { NULL, NULL },

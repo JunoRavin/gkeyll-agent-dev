@@ -1,5 +1,5 @@
 #include <gkyl_canonical_pb_kernels.h> 
-double canonical_pb_vol_1x3v_tensor_p1(const double *w, const double *dxv, const double *hamil, const double *f, double *out) 
+GKYL_CU_DH double canonical_pb_vol_1x3v_tensor_p1(const double *w, const double *dxv, const double *hamil, const double *f, double *out) 
 { 
 // w[NDIM]: Cell-center coordinates. dxv[NDIM]: Cell spacing. H/f: Input Hamiltonian/distribution function. out: Incremented output 
   double dxdvInv0 = 1.0/(dxv[0]*dxv[1]); 

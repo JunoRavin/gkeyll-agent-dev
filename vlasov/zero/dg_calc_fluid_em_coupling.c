@@ -14,7 +14,7 @@ gkyl_dg_calc_fluid_em_coupling_new(const struct gkyl_basis* cbasis,
   int num_fluids, double qbym[GKYL_MAX_SPECIES], double epsilon0,
   bool use_gpu)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if(use_gpu) {
     return gkyl_dg_calc_fluid_em_coupling_cu_dev_new(cbasis, mem_range, 
       num_fluids, qbym, epsilon0);
@@ -59,7 +59,7 @@ gkyl_dg_calc_fluid_em_coupling_advance(struct gkyl_dg_calc_fluid_em_coupling *up
   const struct gkyl_array* ext_em, const struct gkyl_array* app_current, 
   struct gkyl_array* fluid[GKYL_MAX_SPECIES], struct gkyl_array* em)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_array_is_cu_dev(em)) {
     return gkyl_dg_calc_fluid_em_coupling_advance_cu(up, 
       dt, app_accel, ext_em, app_current, fluid, em);
@@ -116,7 +116,7 @@ void
 gkyl_dg_calc_fluid_em_coupling_energy(struct gkyl_dg_calc_fluid_em_coupling *up, 
   const struct gkyl_array* ke_old, const struct gkyl_array* ke_new, struct gkyl_array* fluid)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_array_is_cu_dev(fluid)) {
     return gkyl_dg_calc_fluid_em_coupling_energy_cu(up, 
       ke_old, ke_new, fluid);

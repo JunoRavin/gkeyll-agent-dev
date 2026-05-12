@@ -305,7 +305,7 @@ gkyl_vlasov_lte_correct_release(gkyl_vlasov_lte_correct *up)
   gkyl_free(up);
 }
 
-#ifndef GKYL_HAVE_CUDA
+#ifndef GKYL_HAVE_GPU
 
 void 
 gkyl_vlasov_lte_correct_all_moments_abs_diff_cu(const struct gkyl_range *conf_range, 

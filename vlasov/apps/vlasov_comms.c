@@ -9,7 +9,7 @@ gkyl_vlasov_comms_new(bool use_mpi, bool use_gpu, FILE *iostream)
 
 #ifdef GKYL_HAVE_MPI
   if (use_gpu && use_mpi) {
-#ifdef GKYL_HAVE_NCCL
+#if defined(GKYL_HAVE_NCCL) || defined(GKYL_HAVE_RCCL)
     comm = gkyl_nccl_comm_new( &(struct gkyl_nccl_comm_inp) {
         .mpi_comm = MPI_COMM_WORLD,
       }

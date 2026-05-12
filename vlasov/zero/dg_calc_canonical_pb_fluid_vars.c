@@ -14,7 +14,7 @@ gkyl_dg_calc_canonical_pb_fluid_vars_new(const struct gkyl_rect_grid *conf_grid,
   const struct gkyl_basis *conf_basis, const struct gkyl_range *conf_range, const struct gkyl_range *conf_ext_range, 
   const struct gkyl_wv_eqn *wv_eqn, bool use_gpu)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if(use_gpu) {
     return gkyl_dg_calc_canonical_pb_fluid_vars_cu_dev_new(conf_grid, 
       conf_basis, conf_range, conf_ext_range, wv_eqn);
@@ -94,7 +94,7 @@ void gkyl_dg_calc_canonical_pb_fluid_vars_alpha_surf(struct gkyl_dg_calc_canonic
   const struct gkyl_array* phi,
   struct gkyl_array* alpha_surf, struct gkyl_array* sgn_alpha_surf, struct gkyl_array* const_sgn_alpha)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_array_is_cu_dev(alpha_surf)) {
     return gkyl_dg_calc_canonical_pb_fluid_vars_alpha_surf_cu(up, conf_range, conf_ext_range, phi, 
       alpha_surf, sgn_alpha_surf, const_sgn_alpha);
@@ -147,7 +147,7 @@ void gkyl_canonical_pb_fluid_vars_source(struct gkyl_dg_calc_canonical_pb_fluid_
   const struct gkyl_array *phi, const struct gkyl_array *n0, 
   const struct gkyl_array *fluid, struct gkyl_array *rhs)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_array_is_cu_dev(rhs)) {
     return gkyl_canonical_pb_fluid_vars_source_cu(up, conf_range, phi, n0, fluid, rhs);
   }

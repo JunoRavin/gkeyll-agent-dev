@@ -31,7 +31,7 @@ bc_weighted_delta(const double *inp, int cdim, int dir, enum gkyl_edge_loc edge,
   }
 }
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 
 void
 gkyl_bc_emission_spectrum_set_extern_params_cu(const struct gkyl_bc_emission_spectrum *up,

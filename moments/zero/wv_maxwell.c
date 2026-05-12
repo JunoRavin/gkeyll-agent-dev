@@ -64,7 +64,7 @@ gkyl_wv_maxwell_free(const struct gkyl_ref_count* ref)
 struct gkyl_wv_eqn*
 gkyl_wv_maxwell_new(double c, double e_fact, double b_fact, bool use_gpu)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if(use_gpu) {
     return gkyl_wv_maxwell_cu_dev_new(c, e_fact, b_fact);
   } 

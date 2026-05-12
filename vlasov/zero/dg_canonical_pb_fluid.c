@@ -30,7 +30,7 @@ gkyl_canonical_pb_fluid_free(const struct gkyl_ref_count *ref)
 void
 gkyl_canonical_pb_fluid_set_auxfields(const struct gkyl_dg_eqn *eqn, struct gkyl_dg_canonical_pb_fluid_auxfields auxin)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_dg_eqn_is_cu_dev(eqn)) {
     gkyl_canonical_pb_fluid_set_auxfields_cu(eqn->on_dev, auxin);
     return;
@@ -48,7 +48,7 @@ struct gkyl_dg_eqn*
 gkyl_dg_canonical_pb_fluid_new(const struct gkyl_basis* cbasis, 
   const struct gkyl_range* conf_range, const struct gkyl_wv_eqn *wv_eqn, bool use_gpu)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if(use_gpu) {
     return gkyl_dg_canonical_pb_fluid_cu_dev_new(cbasis, conf_range, wv_eqn);
   } 
@@ -121,7 +121,7 @@ gkyl_dg_canonical_pb_fluid_new(const struct gkyl_basis* cbasis,
   return &can_pb_fluid->eqn;
 }
 
-#ifndef GKYL_HAVE_CUDA
+#ifndef GKYL_HAVE_GPU
 
 struct gkyl_dg_eqn*
 gkyl_dg_canonical_pb_fluid_cu_dev_new(const struct gkyl_basis* cbasis, 

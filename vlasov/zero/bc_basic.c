@@ -9,7 +9,7 @@ struct gkyl_array_copy_func*
 gkyl_bc_basic_create_arr_copy_func(int dir, enum gkyl_edge_loc edge, int cdim, enum gkyl_bc_basic_type bctype,
   const struct gkyl_basis *basis, int ncomp, bool use_gpu)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (use_gpu)
     return gkyl_bc_basic_create_arr_copy_func_cu(dir, edge, cdim, bctype, basis, ncomp);
 #endif

@@ -182,7 +182,7 @@ void test_bc(int cdim, int vdim, int poly_order, char *boundary_type, bool useGP
         &skin_ghost.lower_skin[bc_dir], &skin_ghost.lower_ghost[bc_dir], distf->ncomp, cdim, useGPU);
     }
     if (useGPU) {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
       cudaDeviceSynchronize();
 #endif
       gkyl_bc_basic_advance(bclo, bc_buffer_cu, distf_cu);
@@ -201,7 +201,7 @@ void test_bc(int cdim, int vdim, int poly_order, char *boundary_type, bool useGP
         &skin_ghost.upper_skin[bc_dir], &skin_ghost.upper_ghost[bc_dir], distf->ncomp, cdim, useGPU);
     } 
     if (useGPU) {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
       cudaDeviceSynchronize();
 #endif
       gkyl_bc_basic_advance(bcup, bc_buffer_cu, distf_cu);
@@ -318,7 +318,7 @@ void test_bc_absorb_1x2v_p2()  { test_bc(1, 2, 2, "absorb",  false); }
 void test_bc_absorb_2x2v_p2()  { test_bc(2, 2, 2, "absorb",  false); }
 void test_bc_absorb_3x2v_p2()  { test_bc(3, 2, 2, "absorb",  false); }
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 void test_bc_reflect_1x1v_p1_gpu() { test_bc(1, 1, 1, "reflect", true); }
 void test_bc_reflect_1x2v_p1_gpu() { test_bc(1, 2, 1, "reflect", true); }
 void test_bc_reflect_2x2v_p1_gpu() { test_bc(2, 2, 1, "reflect", true); }
@@ -357,7 +357,7 @@ TEST_LIST = {
   {"test_bc_absorb_1x2v_p2", test_bc_absorb_1x2v_p2},
   {"test_bc_absorb_2x2v_p2", test_bc_absorb_2x2v_p2},
   {"test_bc_absorb_3x2v_p2", test_bc_absorb_3x2v_p2},
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   {"test_bc_reflect_1x1v_p1_gpu", test_bc_reflect_1x1v_p1_gpu},
   {"test_bc_reflect_1x2v_p1_gpu", test_bc_reflect_1x2v_p1_gpu},
   {"test_bc_reflect_2x2v_p1_gpu", test_bc_reflect_2x2v_p1_gpu},

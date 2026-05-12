@@ -560,7 +560,7 @@ test_vlasov_2x3v_p1_cu()
   test_vlasov_2x3v_p1_(true);
 }
 
-#ifndef GKYL_HAVE_CUDA
+#ifndef GKYL_HAVE_GPU
 int hyper_dg_kernel_test(const gkyl_hyper_dg *slvr) {
   return 0;
 }
@@ -569,7 +569,7 @@ int hyper_dg_kernel_test(const gkyl_hyper_dg *slvr) {
 TEST_LIST = {
   { "test_vlasov_1x2v_p2", test_vlasov_1x2v_p2 },
   { "test_vlasov_2x3v_p1", test_vlasov_2x3v_p1 },
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   { "test_vlasov_1x2v_p2_cu", test_vlasov_1x2v_p2_cu },
   { "test_vlasov_2x3v_p1_cu", test_vlasov_2x3v_p1_cu },
 #endif

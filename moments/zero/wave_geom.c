@@ -30,7 +30,7 @@ struct gkyl_wave_geom*
 gkyl_wave_geom_new(const struct gkyl_rect_grid *grid, struct gkyl_range *range,
   evalf_t mapc2p, void *ctx, bool use_gpu)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if(use_gpu) {
     return gkyl_wave_geom_cu_dev_new(grid, range, mapc2p, ctx);
   } 

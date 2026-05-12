@@ -164,7 +164,7 @@ gkyl_vlasov_lte_proj_on_basis_geom_quad_vars(gkyl_vlasov_lte_proj_on_basis *up,
   const struct gkyl_array *h_ij_inv, const struct gkyl_array *det_h)
 {
 // Setup the intial geometric vars, on GPU 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (up->use_gpu)
     return gkyl_vlasov_lte_proj_on_basis_geom_quad_vars_cu(up, conf_range, h_ij,
       h_ij_inv, det_h);
@@ -269,7 +269,7 @@ gkyl_vlasov_lte_proj_on_basis_inew(const struct gkyl_vlasov_lte_proj_on_basis_in
     up->mem = gkyl_dg_bin_op_mem_new(conf_local_ncells, up->conf_basis.num_basis);
   }
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (up->use_gpu) {
     // Allocate device copies of arrays needed for quadrature.
 
@@ -409,7 +409,7 @@ gkyl_vlasov_lte_proj_on_basis_advance(gkyl_vlasov_lte_proj_on_basis *up,
   const struct gkyl_array *moms_lte, struct gkyl_array *f_lte)
 {
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (up->use_gpu)
     return gkyl_vlasov_lte_proj_on_basis_advance_cu(up, phase_range, conf_range, moms_lte, f_lte);
 #endif

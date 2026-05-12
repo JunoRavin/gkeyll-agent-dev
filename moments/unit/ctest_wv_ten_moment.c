@@ -189,7 +189,7 @@ test_ten_moment_waves()
   gkyl_wv_eqn_release(ten_moment);
 }
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 
 int cu_wv_ten_moment_test(const struct gkyl_wv_eqn *eqn);
 
@@ -218,7 +218,7 @@ test_cu_wv_ten_moment()
 TEST_LIST = {
   { "ten_moment_basic", test_ten_moment_basic },
   { "ten_moment_waves", test_ten_moment_waves },
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   { "cu_wv_ten_moment", test_cu_wv_ten_moment },
 #endif  
   { NULL, NULL },

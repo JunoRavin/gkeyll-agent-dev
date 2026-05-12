@@ -374,7 +374,7 @@ kernel_vlasov_vol_2x2v_ser_p1(const struct gkyl_dg_eqn *eqn, const double*  xc, 
 
 GKYL_CU_DH
 static double
-kernel_vlasov_vol_2x2v_ser_p2(const struct gkyl_dg_eqn *eqn, const double*  xc, const double*  dx, 
+kernel_vlasov_vol_2x2v_ser_p2(const struct gkyl_dg_eqn *eqn, const double*  xc, const double*  dx,
   const int* idx, const double* qIn, double* GKYL_RESTRICT qRhsOut)
 {
   struct dg_vlasov *vlasov = container_of(eqn, struct dg_vlasov, eqn);

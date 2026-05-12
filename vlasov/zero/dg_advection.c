@@ -29,7 +29,7 @@ gkyl_advection_free(const struct gkyl_ref_count *ref)
 void
 gkyl_advection_set_auxfields(const struct gkyl_dg_eqn *eqn, struct gkyl_dg_advection_auxfields auxin)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_array_is_cu_dev(auxin.u_i)) {
     gkyl_advection_set_auxfields_cu(eqn->on_dev, auxin);
     return;
@@ -43,7 +43,7 @@ gkyl_advection_set_auxfields(const struct gkyl_dg_eqn *eqn, struct gkyl_dg_advec
 struct gkyl_dg_eqn*
 gkyl_dg_advection_new(const struct gkyl_basis* cbasis, const struct gkyl_range* conf_range, bool use_gpu)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if(use_gpu) {
     return gkyl_dg_advection_cu_dev_new(cbasis, conf_range);
   } 
@@ -95,7 +95,7 @@ gkyl_dg_advection_new(const struct gkyl_basis* cbasis, const struct gkyl_range* 
   return &advection->eqn;
 }
 
-#ifndef GKYL_HAVE_CUDA
+#ifndef GKYL_HAVE_GPU
 
 struct gkyl_dg_eqn*
 gkyl_dg_advection_cu_dev_new(const struct gkyl_basis* cbasis, const struct gkyl_range* conf_range)

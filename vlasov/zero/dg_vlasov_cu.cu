@@ -3,11 +3,25 @@
 extern "C" {
 #include <gkyl_alloc.h>
 #include <gkyl_alloc_flags_priv.h>
-#include <gkyl_dg_vlasov.h>    
+#include <gkyl_dg_vlasov.h>
 #include <gkyl_dg_vlasov_priv.h>
 }
 
 #include <cassert>
+
+// Direct-dispatch wrapper for the 2x2v ser p2 vol kernel. Lives in this TU
+// so it can call the static kernel_vlasov_vol_2x2v_ser_p2 by name. Called
+// by hyper_dg_advance_cu_kernel via extern "C" __device__ instead of through
+// up->equation->vol_term — required to avoid an AMD MI250X fault under
+// -fgpu-rdc, where the indirect call's scratch reserve is too small for
+// this kernel's spill demand.
+extern "C" __device__ double
+gkyl_diag_vol_2x2v_ser_p2_direct(const struct gkyl_dg_eqn *eqn,
+  const double *xc, const double *dx, const int *idx,
+  const double *qIn, double *GKYL_RESTRICT qRhsOut)
+{
+  return kernel_vlasov_vol_2x2v_ser_p2(eqn, xc, dx, idx, qIn, qRhsOut);
+}
 
 // CUDA kernel to set pointer to auxiliary fields.
 // This is required because eqn object lives on device,

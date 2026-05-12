@@ -24,7 +24,7 @@ void
 gkyl_lbo_vlasov_diff_set_auxfields(const struct gkyl_dg_eqn *eqn, const struct gkyl_dg_lbo_vlasov_diff_auxfields auxin)
 {
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
  if (gkyl_array_is_cu_dev(auxin.nuSum) && gkyl_array_is_cu_dev(auxin.nuPrimMomsSum)) {
    gkyl_lbo_vlasov_diff_set_auxfields_cu(eqn->on_dev, auxin);
    return;
@@ -41,7 +41,7 @@ struct gkyl_dg_eqn*
 gkyl_dg_lbo_vlasov_diff_new(const struct gkyl_basis* cbasis, const struct gkyl_basis* pbasis,
   const struct gkyl_range* conf_range, const struct gkyl_rect_grid *pgrid, bool use_gpu)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if(use_gpu) {
     return gkyl_dg_lbo_vlasov_diff_cu_dev_new(cbasis, pbasis, conf_range, pgrid);
   } 
@@ -117,7 +117,7 @@ gkyl_dg_lbo_vlasov_diff_new(const struct gkyl_basis* cbasis, const struct gkyl_b
   return &lbo_vlasov_diff->eqn;
 }
 
-#ifndef GKYL_HAVE_CUDA
+#ifndef GKYL_HAVE_GPU
 
 struct gkyl_dg_eqn*
 gkyl_dg_lbo_vlasov_diff_cu_dev_new(const struct gkyl_basis* cbasis,

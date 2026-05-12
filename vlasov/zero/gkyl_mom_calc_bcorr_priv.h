@@ -16,7 +16,7 @@ struct gkyl_mom_calc_bcorr {
   struct gkyl_mom_calc_bcorr *on_dev;
 };
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 /**
  * Create new updater to update boundary corrections on NV-GPU: 
  * see new() method above for documentation.

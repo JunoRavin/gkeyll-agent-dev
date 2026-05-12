@@ -320,7 +320,7 @@ test_1x2v_p2()
 }
 
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 
 void
 test_1x1v_p2_cu()
@@ -615,7 +615,7 @@ test_1x2v_p2_cu()
 TEST_LIST = {
   { "test_1x1v_p2", test_1x1v_p2 },
   { "test_1x2v_p2", test_1x2v_p2 },
-  #ifdef GKYL_HAVE_CUDA
+  #ifdef GKYL_HAVE_GPU
   { "test_1x1v_p2_cu", test_1x1v_p2_cu },
   { "test_1x2v_p2_cu", test_1x2v_p2_cu },
   #endif

@@ -10,7 +10,7 @@ struct gkyl_prim_cross_m0deltas {
   bool use_gpu; // Whether to run on GPU.
 };
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 /**
  * On the NVIDIA GPU, compute 
  *   n_s*delta_s*(beta+1) = 2*(beta+1) * n_s * m_r * n_r * nu_rs / (m_s * n_s * nu_sr + m_r * n_r * nu_rs)

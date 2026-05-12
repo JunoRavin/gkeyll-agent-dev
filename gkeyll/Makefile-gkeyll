@@ -36,7 +36,13 @@ INSTALLED_EXEC_LIBS = -L${PROJ_INSTALL_LIB_DIR} ${FINAL_APP_LIB} ${EXEC_EXT_LIBS
 ALL_INCS := ${CORE_INCS} -Ilua/Comm -Ilua/Tool -I../core/minus/STC/include
 
 LDFLAGS += -Wl,-rpath,./${BUILD_DIR}/core
-LDFLAGS += -Wl,-rpath,./${BUILD_DIR}/pkpm
+# Use the configured app instead of hardcoded pkpm so --app=vlasov / moments
+# / gyrokinetic get the right rpath. Without this, the gkeyll executable
+# can't find libg0vlasov.so / libg0moments.so / libg0gyrokinetic.so at
+# runtime because their build dirs aren't on the embedded library search
+# path. (Same shape of pkpm-hardcoded issue as the top Makefile's
+# `gkeyll: pkpm` dependency we already fixed.)
+LDFLAGS += -Wl,-rpath,./${BUILD_DIR}/${BUILD_APP}
 
 INSTALLED_LDFLAGS += -Wl,-rpath,${PROJ_INSTALL_LIB_DIR}
 

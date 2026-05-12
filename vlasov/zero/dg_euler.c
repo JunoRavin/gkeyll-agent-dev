@@ -33,7 +33,7 @@ gkyl_dg_euler_free(const struct gkyl_ref_count *ref)
 void
 gkyl_euler_set_auxfields(const struct gkyl_dg_eqn *eqn, struct gkyl_dg_euler_auxfields auxin)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (gkyl_array_is_cu_dev(auxin.u)) {
     gkyl_euler_set_auxfields_cu(eqn->on_dev, auxin);
     return;
@@ -51,7 +51,7 @@ struct gkyl_dg_eqn*
 gkyl_dg_euler_new(const struct gkyl_basis* cbasis, const struct gkyl_range* conf_range,
   const struct gkyl_wv_eqn *wv_eqn, const struct gkyl_wave_geom *geom, bool use_gpu)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if(use_gpu) {
     return gkyl_dg_euler_cu_dev_new(cbasis, conf_range, wv_eqn, geom);
   } 
@@ -118,7 +118,7 @@ gkyl_dg_euler_new(const struct gkyl_basis* cbasis, const struct gkyl_range* conf
   return &euler->eqn;
 }
 
-#ifndef GKYL_HAVE_CUDA
+#ifndef GKYL_HAVE_GPU
 
 struct gkyl_dg_eqn*
 gkyl_dg_euler_cu_dev_new(const struct gkyl_basis* cbasis, const struct gkyl_range* conf_range,

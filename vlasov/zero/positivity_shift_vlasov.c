@@ -26,7 +26,7 @@ gkyl_positivity_shift_vlasov_new(struct gkyl_basis cbasis, struct gkyl_basis pba
     up->ffloor = gkyl_malloc(sizeof(double[1]));
     up->ffloor[0] = 0.0;  // Gets updated after 1st call to _advance.
   }
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (use_gpu) {
     up->kernels = gkyl_cu_malloc(sizeof(struct gkyl_positivity_shift_vlasov_kernels));
 
@@ -52,7 +52,7 @@ gkyl_positivity_shift_vlasov_advance(gkyl_positivity_shift_vlasov* up,
   struct gkyl_array *GKYL_RESTRICT distf, struct gkyl_array *GKYL_RESTRICT m0,
   struct gkyl_array *GKYL_RESTRICT delta_m0)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (up->use_gpu) {
     gkyl_positivity_shift_vlasov_advance_cu(up, conf_rng, phase_rng,
       distf, m0, delta_m0);
@@ -179,7 +179,7 @@ gkyl_positivity_shift_vlasov_release(gkyl_positivity_shift_vlasov* up)
     gkyl_free(up->ffloor);
     gkyl_free(up->kernels);
   }
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (up->use_gpu) {
     gkyl_cu_free(up->ffloor);
     gkyl_cu_free(up->kernels);

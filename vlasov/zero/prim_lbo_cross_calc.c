@@ -12,7 +12,7 @@ struct gkyl_prim_lbo_cross_calc*
 gkyl_prim_lbo_cross_calc_new(const struct gkyl_rect_grid *grid,
   struct gkyl_prim_lbo_type *prim, bool use_gpu)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (use_gpu) {
     return gkyl_prim_lbo_cross_calc_cu_dev_new(grid, prim);
   } 
@@ -40,7 +40,7 @@ gkyl_prim_lbo_cross_calc_advance(struct gkyl_prim_lbo_cross_calc* calc,
   const struct gkyl_array *boundary_corrections, const struct gkyl_array *nu, 
   struct gkyl_array *prim_moms_out)
 {
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   if (GKYL_IS_CU_ALLOC(calc->flags)) {
     gkyl_prim_lbo_cross_calc_advance_cu(calc, conf_rng, alpha_E, self_m, self_moms, self_prim_moms,
       other_m, other_moms, other_prim_moms, boundary_corrections, nu, prim_moms_out);

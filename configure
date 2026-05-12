@@ -362,21 +362,28 @@ elif [ "$APP" = "moments" ]
 then
     ALLTARGETS="moments moments-unit moments-regression"
     INSTALLTARGET="moments-install"
-    FIN_APP_LIB_DIR="-L../${BUILD_DIR}/moments"
+    # ${BUILD_DIR} is escaped so make resolves it at build time, not the
+    # shell at configure time (which would substitute the empty string
+    # before BUILD_DIR is set in the Makefile USING_HIPCC/USING_NVCC arm).
+    # Pre-existing bug — the pkpm default at line 14 was correctly
+    # escaped; the non-default arms here weren't, so config.mak ended
+    # up with FIN_APP_LIB_DIR=-L..//${app} (double slash, missing
+    # build dir) and `make gkeyll` couldn't find the app library.
+    FIN_APP_LIB_DIR="-L../\${BUILD_DIR}/moments"
     FIN_APP_LIB_NAME=${FIN_APP_LIB_DIR}/libg0moments.so
     FIN_APP_LIB="-lg0moments"
 elif [ "$APP" = "vlasov" ]
 then
     ALLTARGETS="vlasov vlasov-unit vlasov-regression"
     INSTALLTARGET="vlasov-install"
-    FIN_APP_LIB_DIR="-L../${BUILD_DIR}/vlasov"
+    FIN_APP_LIB_DIR="-L../\${BUILD_DIR}/vlasov"
     FIN_APP_LIB_NAME=${FIN_APP_LIB_DIR}/libg0vlasov.so
     FIN_APP_LIB="-lg0vlasov"
 elif [ "$APP" = "gyrokinetic" ]
 then
     ALLTARGETS="gyrokinetic gyrokinetic-unit gyrokinetic-regression"
     INSTALLTARGET="gyrokinetic-install"
-    FIN_APP_LIB_DIR="-L../${BUILD_DIR}/gyrokinetic"
+    FIN_APP_LIB_DIR="-L../\${BUILD_DIR}/gyrokinetic"
     FIN_APP_LIB_NAME=${FIN_APP_LIB_DIR}/libg0gyrokinetic.so
     FIN_APP_LIB="-lg0gyrokinetic"
 elif [ "$APP" = "pkpm" ]

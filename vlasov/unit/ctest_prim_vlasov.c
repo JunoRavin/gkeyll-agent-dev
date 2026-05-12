@@ -319,7 +319,7 @@ test_func(int cdim, int vdim, int poly_order,
 
 }
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 void
 test_func_cu(int cdim, int vdim, int poly_order, 
   evalf_t evalDistFunc, double f_check[], double vf_check[], 
@@ -571,7 +571,7 @@ test_1x2v_p2()
   test_func(cdim, vdim, poly_order, evalDistFunc1x2v, f_check, vf_check, u_check, vth_check, ucross_check, vthcross_check);
 }
 
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
 void
 test_1x1v_p2_cu()
 {
@@ -609,7 +609,7 @@ test_1x2v_p2_cu()
 TEST_LIST = {
   { "test_1x1v_p2", test_1x1v_p2 },
   { "test_1x2v_p2", test_1x2v_p2 },
-#ifdef GKYL_HAVE_CUDA
+#ifdef GKYL_HAVE_GPU
   { "test_1x1v_p2_cu", test_1x1v_p2_cu },
   { "test_1x2v_p2_cu", test_1x2v_p2_cu },
 #endif
